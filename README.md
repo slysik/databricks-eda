@@ -90,7 +90,8 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 
 | File | Description |
 | :--- | :--- |
-| **`eda_online_retail_ii.ipynb`** | **Primary Interactive Notebook:** Contains all 14 styled light blue section cards, embedded charts, and pre-rendered analysis tables. |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Latest & Greatest Gold Notebook (v1):** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
+| **`eda_online_retail_ii.ipynb`** | **Interactive Jupyter Notebook:** Identical latest copy for standard reference. |
 | **`eda_online_retail_ii.py`** | **Databricks Source Script:** Clean Databricks `# MAGIC` source format for Workspace imports, CI/CD, and DABs. |
 | **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation deliverable (214 KB) with zero external assets. |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
