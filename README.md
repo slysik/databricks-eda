@@ -95,7 +95,7 @@ flowchart TD
 | **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
 | **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (tables, instructions, sample questions, example SQL). Recreate it with the Genie API or notebook §14. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
-| **`eda_online_retail_ii.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
+| **`eda_online_retail_ii_sql.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
 | **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables. |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
 | **`eda_interview_exercise.md`** | **Analytical Brief:** Project prompt, problem statement, and interview evaluation criteria. |
