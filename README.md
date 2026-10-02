@@ -36,38 +36,33 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 ## Production Blueprint & Lakehouse Architecture
 
 ```mermaid
-flowchart TD
-    classDef source fill:#F1F5F9,stroke:#94A3B8,color:#0F172A;
-    classDef landing fill:#FFFBEB,stroke:#F59E0B,color:#92400E;
-    classDef silver fill:#EEF2FF,stroke:#6366F1,color:#3730A3;
-    classDef gold fill:#ECFDF5,stroke:#10B981,color:#065F46;
-    classDef serving fill:#F3E8FF,stroke:#A855F7,color:#6B21A8;
-    classDef uc fill:#0F172A,stroke:#334155,color:#F8FAFC;
+graph TD
+    classDef source fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#0F172A;
+    classDef bronze fill:#FFFBEB,stroke:#F59E0B,stroke-width:1.5px,color:#92400E;
+    classDef silver fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#3730A3;
+    classDef gold fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#065F46;
+    classDef serving fill:#F3E8FF,stroke:#A855F7,stroke-width:1.5px,color:#6B21A8;
+    classDef uc fill:#0F172A,stroke:#334155,stroke-width:1.5px,color:#F8FAFC;
 
-    S["<b>1. Source</b><br/>UCI Online Retail II<br/>Excel workbook, 2 yearly sheets, 1.07M rows"]
-    L["<b>2. Landing: UC Volume</b><br/>/Volumes/synaptiq/online_retail/raw<br/>both sheets stacked to one CSV + source_sheet"]
-    SV["<b>3. Silver: retail_prod.silver</b><br/>sales_cleaned, sales_quarantine, sales_stitched<br/>sheet-overlap dedup, CHECK constraints, guest stitching"]
-    G["<b>4. Gold: retail_prod.gold</b><br/>gold_daily_kpis, gold_customer_features<br/>PySpark = Spark SQL parity checks"]
-    ML["<b>5a. ML</b><br/>return_propensity_model<br/>MLflow, registered in UC, ROC-AUC 0.89"]
-    GN["<b>5b. Genie agent</b><br/>EDA Governed Gold Analytics<br/>4 tables, 13 sample questions"]
-    PR["<b>5c. Presentation</b><br/>notebook run export to build_presentation.py<br/>eda_online_retail_ii_presentation.html"]
-    UC["<b>Unity Catalog governance</b><br/>mask_customer_id column mask<br/>filter_uk_region row filter, lineage"]
+    S["📥 <b>1. Landing Zone</b><br/>UCI Online Retail II<br/>1.07M raw rows • multi-sheet Excel"]
+    B["🥉 <b>2. Bronze Layer</b><br/>synaptiq.online_retail.transactions_raw<br/>raw values preserved • sheet-tagged"]
+    SLV["🥈 <b>3. Silver Layer</b><br/>retail_prod.silver<br/>sales_cleaned & sales_stitched<br/>dedup • Delta CHECK • guest stitching"]
+    G["🥇 <b>4. Gold Layer</b><br/>retail_prod.gold<br/>gold_daily_kpis & gold_customer_features<br/>PySpark = Spark SQL parity"]
+    SRV["🤖 <b>5. Serving & Machine Learning</b><br/>MLflow return_propensity_model (ROC 0.89)<br/>Genie agent: EDA Governed Gold Analytics"]
+    UC["🛡️ <b>6. Unity Catalog Governance</b><br/>mask_customer_id • filter_uk_region<br/>lineage"]
 
-    S -->|stack sheets| L
-    L -->|clean, dedup, quarantine| SV
-    SV -->|aggregate, features| G
-    G -->|train and register| ML
-    G -->|natural-language SQL| GN
-    SV -->|sales_cleaned, sales_stitched| GN
-    G -->|KPIs and charts| PR
-    UC -.->|masks and filters| SV
-    UC -.->|masks and filters| G
+    S -->|Raw Batch Import| B
+    B -->|Window Dedup & Quarantine| SLV
+    SLV -->|Feature Eng & Aggregations| G
+    G -->|Model Training & SQL Serving| SRV
+    SRV -.- UC
+    G -.- UC
 
     class S source;
-    class L landing;
-    class SV silver;
+    class B bronze;
+    class SLV silver;
     class G gold;
-    class ML,GN,PR serving;
+    class SRV serving;
     class UC uc;
 ```
 
