@@ -43,13 +43,15 @@ graph TD
     classDef gold fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#065F46;
     classDef serving fill:#F3E8FF,stroke:#A855F7,stroke-width:1.5px,color:#6B21A8;
     classDef uc fill:#0F172A,stroke:#334155,stroke-width:1.5px,color:#F8FAFC;
+    classDef genie fill:#FFF1F2,stroke:#F43F5E,stroke-width:1.5px,color:#9F1239;
 
     S["📥 <b>1. Landing Zone</b><br/>UCI Online Retail II<br/>1.07M raw rows • multi-sheet Excel"]
     B["🥉 <b>2. Bronze Layer</b><br/>synaptiq.online_retail.transactions_raw<br/>raw values preserved • sheet-tagged"]
     SLV["🥈 <b>3. Silver Layer</b><br/>retail_prod.silver<br/>sales_cleaned & sales_stitched<br/>dedup • Delta CHECK • guest stitching"]
     G["🥇 <b>4. Gold Layer</b><br/>retail_prod.gold<br/>gold_daily_kpis & gold_customer_features<br/>PySpark = Spark SQL parity"]
-    SRV["🤖 <b>5. Serving & Machine Learning</b><br/>MLflow return_propensity_model (ROC 0.89)<br/>Genie agent: EDA Governed Gold Analytics"]
+    SRV["🤖 <b>5. Serving & Machine Learning</b><br/>MLflow return_propensity_model<br/>registered in UC • ROC-AUC 0.89"]
     UC["🛡️ <b>6. Unity Catalog Governance</b><br/>mask_customer_id • filter_uk_region<br/>lineage"]
+    GN["🧞 <b>7. EDA Genie Agent</b><br/>EDA Governed Gold Analytics<br/>4 silver/gold tables • 13 sample questions<br/>answers inherit UC masks & row filters"]
 
     S -->|Raw Batch Import| B
     B -->|Window Dedup & Quarantine| SLV
@@ -57,6 +59,7 @@ graph TD
     G -->|Model Training & SQL Serving| SRV
     SRV -.- UC
     G -.- UC
+    UC -->|Governed Natural-Language SQL| GN
 
     class S source;
     class B bronze;
@@ -64,7 +67,11 @@ graph TD
     class G gold;
     class SRV serving;
     class UC uc;
+    class GN genie;
 ```
+
+**Live Genie agent:** [EDA Governed Gold Analytics](https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1be9f6999187ea0956f86f5fe7e9b?o=7474656067656578) (workspace access required) · definition in [`genie/eda_governed_gold_space.json`](genie/eda_governed_gold_space.json)
+
 
 ### Key Technical Capabilities
 
