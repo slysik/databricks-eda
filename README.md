@@ -35,40 +35,41 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 
 ## Production Blueprint & Lakehouse Architecture
 
-```
-graph TD
-    %% Tonal Palette Styling
-    classDef source fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#0F172A;
-    classDef bronze fill:#FFFBEB,stroke:#F59E0B,stroke-width:1.5px,color:#92400E;
-    classDef silver fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#3730A3;
-    classDef gold fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#065F46;
-    classDef serving fill:#F3E8FF,stroke:#A855F7,stroke-width:1.5px,color:#6B21A8;
-    classDef uc fill:#0F172A,stroke:#334155,stroke-width:1.5px,color:#F8FAFC;
+```mermaid
+flowchart TD
+    classDef source fill:#F1F5F9,stroke:#94A3B8,color:#0F172A;
+    classDef landing fill:#FFFBEB,stroke:#F59E0B,color:#92400E;
+    classDef silver fill:#EEF2FF,stroke:#6366F1,color:#3730A3;
+    classDef gold fill:#ECFDF5,stroke:#10B981,color:#065F46;
+    classDef serving fill:#F3E8FF,stroke:#A855F7,color:#6B21A8;
+    classDef uc fill:#0F172A,stroke:#334155,color:#F8FAFC;
 
-    %% Pipeline Nodes
-    S[1. Data Landing Zone<br/><b>UCI Online Retail II Dataset</b><br/><i>1.07M Raw Transaction Line Items</i>]
-    B[2. Bronze Layer<br/><b>synaptiq.online_retail.transactions_raw</b><br/><i>Monotonically Increasing PKs • Raw Types Preserved</i>]
-    SLV[3. Silver Layer<br/><b>retail_prod.silver.transactions_clean & sales_stitched</b><br/><i>Deduplicated (_rn=1) • Non-Inventory Quarantine • Guest Identity Stitching</i>]
-    G[4. Gold Layer<br/><b>gold_daily_kpis & gold_customer_features</b><br/><i>Sub-Second Aggregations • Dual-Engine Parity Verified (PySpark == Spark SQL)</i>]
-    SRV[5. Serving & Machine Learning<br/><b>MLflow Model & Databricks Genie AI/BI</b><br/><i>Random Forest Return Propensity (ROC 0.89) • Natural Language SQL</i>]
-    UC[6. Unity Catalog Governance<br/><i>Dynamic Masking (customer_id UDF) • Row-Level Security • End-to-End Lineage</i>]
+    S["<b>1. Source</b><br/>UCI Online Retail II<br/>Excel workbook, 2 yearly sheets, 1.07M rows"]
+    L["<b>2. Landing: UC Volume</b><br/>/Volumes/synaptiq/online_retail/raw<br/>both sheets stacked to one CSV + source_sheet"]
+    SV["<b>3. Silver: retail_prod.silver</b><br/>sales_cleaned, sales_quarantine, sales_stitched<br/>sheet-overlap dedup, CHECK constraints, guest stitching"]
+    G["<b>4. Gold: retail_prod.gold</b><br/>gold_daily_kpis, gold_customer_features<br/>PySpark = Spark SQL parity checks"]
+    ML["<b>5a. ML</b><br/>return_propensity_model<br/>MLflow, registered in UC, ROC-AUC 0.89"]
+    GN["<b>5b. Genie agent</b><br/>EDA Governed Gold Analytics<br/>4 tables, 13 sample questions"]
+    PR["<b>5c. Presentation</b><br/>notebook run export to build_presentation.py<br/>eda_online_retail_ii_presentation.html"]
+    UC["<b>Unity Catalog governance</b><br/>mask_customer_id column mask<br/>filter_uk_region row filter, lineage"]
 
-    %% Data Flow
-    S -->|Raw Batch Import| B
-    B -->|Window Dedup & Quarantine| SLV
-    SLV -->|Feature Eng & Aggregation| G
-    G -->|Model Training & SQL Serving| SRV
-    SRV -.- UC
+    S -->|stack sheets| L
+    L -->|clean, dedup, quarantine| SV
+    SV -->|aggregate, features| G
+    G -->|train and register| ML
+    G -->|natural-language SQL| GN
+    SV -->|sales_cleaned, sales_stitched| GN
+    G -->|KPIs and charts| PR
+    UC -.->|masks and filters| SV
+    UC -.->|masks and filters| G
 
-    %% Styling Assignments
     class S source;
-    class B bronze;
-    class SLV silver;
+    class L landing;
+    class SV silver;
     class G gold;
-    class SRV serving;
+    class ML,GN,PR serving;
     class UC uc;
 ```
-      
 
 ### Key Technical Capabilities
 
@@ -89,10 +90,13 @@ graph TD
 
 | File | Description |
 | :--- | :--- |
-| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Latest & Greatest Gold Notebook (v1):** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Latest Gold Notebook (v1):** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
 | **`eda_online_retail_ii.ipynb`** | **Interactive Jupyter Notebook:** Identical latest copy for standard reference. |
-| **`eda_online_retail_ii.py`** | **Databricks Source Script:** Clean Databricks `# MAGIC` source format for Workspace imports, CI/CD, and DABs. |
-| **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation deliverable (214 KB) with zero external assets. |
+| **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
+| **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (tables, instructions, sample questions, example SQL). Recreate it with the Genie API or notebook §14. |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
+| **`eda_online_retail_ii.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
+| **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables. |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
 | **`eda_interview_exercise.md`** | **Analytical Brief:** Project prompt, problem statement, and interview evaluation criteria. |
 
@@ -100,7 +104,9 @@ graph TD
 
 ## Quickstart
 
-### 1. Import into Databricks Workspace
+### 1. Open in Databricks
+This repo is linked as a Databricks **Git folder** at `/Workspace/Users/<you>/databricks-eda` (Workspace → Create → Git folder → `https://github.com/slysik/databricks-eda`). Or import a single notebook:
+
 1. In your Databricks workspace, navigate to **Workspace**.
 2. Click **Import** &rarr; select **`eda_online_retail_ii.ipynb`**.
 3. Attach to any **Serverless Compute** or standard cluster (DBR 14.3+).
@@ -109,7 +115,7 @@ graph TD
 ### 2. Run Presentation Compiler Locally
 The analytical HTML presentation can be recompiled directly from the notebook run export:
 ```bash
-uv run --with markdown python build_presentation.py eda_online_retail_ii_run_export.html eda_online_retail_ii_presentation.html
+uv run --with markdown python build_presentation.py "eda-online-retail-gold-V1-2026-10-02 17_48_41.html" eda_online_retail_ii_presentation.html
 ```
 
 ---

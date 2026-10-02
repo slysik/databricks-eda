@@ -1,0 +1,648 @@
+{
+  "title": "EDA Governed Gold Analytics",
+  "description": "Self-service analytics over governed gold retail tables with UC column masking and row-level security",
+  "warehouse_id": "4bbaafe9538467a0",
+  "space_id": "01f1be9f6999187ea0956f86f5fe7e9b",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "01f1be9f69a919a2910b8dfb2e5b393a",
+          "question": [
+            "What were the top 5 revenue days in Q4 2010?"
+          ]
+        },
+        {
+          "id": "01f1be9f69ab1782b3343f668fe66b91",
+          "question": [
+            "Which VIP customers are at risk of churning?"
+          ]
+        },
+        {
+          "id": "01f1be9f69ad14b7901d2c2638f23c94",
+          "question": [
+            "What percentage of revenue comes from guest checkouts?"
+          ]
+        },
+        {
+          "id": "01f1be9f69af1353af0205cb4159994b",
+          "question": [
+            "How does holiday 2010 compare to 2009?"
+          ]
+        },
+        {
+          "id": "01f1be9f69b01f368468f302c9475b95",
+          "question": [
+            "What is the return rate by country?"
+          ]
+        },
+        {
+          "id": "01f1bea34cd4150f8db6794e224d1e91",
+          "question": [
+            "Show daily net revenue trend over time"
+          ]
+        },
+        {
+          "id": "01f1bea34ce611288f8c661bded6bbd2",
+          "question": [
+            "What are the top 10 countries by net revenue?"
+          ]
+        },
+        {
+          "id": "01f1bea34cf61615b4264b036dd4a4ba",
+          "question": [
+            "Compare gross revenue vs net revenue by month"
+          ]
+        },
+        {
+          "id": "01f1bea34d0817c9b36b60cc0d6faa10",
+          "question": [
+            "What is the cancellation rate trend over time?"
+          ]
+        },
+        {
+          "id": "01f1bea34d181b878b4f62194eab16a2",
+          "question": [
+            "Show the distribution of customer lifetime spend"
+          ]
+        },
+        {
+          "id": "01f1bea34d2a169bb24f09b24a1af820",
+          "question": [
+            "What percentage of revenue comes from guest vs identified checkouts?"
+          ]
+        },
+        {
+          "id": "01f1bea34d3c1073b1e358f95e3c71ab",
+          "question": [
+            "Plot daily average order value over time"
+          ]
+        },
+        {
+          "id": "01f1bea34d4e1638a1471ae3d0822cf9",
+          "question": [
+            "Which months had the highest order volume?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "retail_prod.gold.gold_customer_features",
+          "description": [
+            "Customer lifetime features: orders, spend, return rate, recency"
+          ],
+          "column_configs": [
+            {
+              "column_name": "customer_id",
+              "description": [
+                "Unique customer identifier (masked for non-admin users via UC column mask)"
+              ]
+            },
+            {
+              "column_name": "first_purchase_date",
+              "description": [
+                "Earliest invoice timestamp"
+              ]
+            },
+            {
+              "column_name": "last_purchase_date",
+              "description": [
+                "Most recent invoice timestamp"
+              ],
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "lifetime_gross_revenue",
+              "description": [
+                "Revenue from positive-quantity sales lines"
+              ]
+            },
+            {
+              "column_name": "lifetime_orders",
+              "description": [
+                "Distinct invoices over lifetime"
+              ]
+            },
+            {
+              "column_name": "lifetime_refund_amount",
+              "description": [
+                "Revenue from negative-quantity return lines"
+              ]
+            },
+            {
+              "column_name": "net_lifetime_spend",
+              "description": [
+                "Net lifetime spend: lifetime_gross_revenue + lifetime_refund_amount (refund amount is negative, so this yields gross minus refunds)."
+              ]
+            },
+            {
+              "column_name": "refund_propensity_pct",
+              "description": [
+                "Return lines as pct of total lines"
+              ]
+            },
+            {
+              "column_name": "total_units_bought",
+              "description": [
+                "Sum of quantity across all orders"
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "retail_prod.gold.gold_daily_kpis",
+          "description": [
+            "Daily KPIs: gross revenue, net revenue, orders, cancellations, AOV"
+          ],
+          "column_configs": [
+            {
+              "column_name": "avg_order_value",
+              "description": [
+                "Net revenue per completed order"
+              ]
+            },
+            {
+              "column_name": "cancellation_rate_pct",
+              "description": [
+                "Cancelled orders as pct of total"
+              ]
+            },
+            {
+              "column_name": "cancelled_orders",
+              "description": [
+                "Distinct cancellation invoices"
+              ]
+            },
+            {
+              "column_name": "completed_orders",
+              "description": [
+                "Distinct non-cancellation invoices"
+              ]
+            },
+            {
+              "column_name": "gross_revenue",
+              "description": [
+                "Revenue from positive-quantity sales lines"
+              ]
+            },
+            {
+              "column_name": "invoice_date",
+              "description": [
+                "Calendar date of the invoice"
+              ],
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "net_revenue",
+              "description": [
+                "Net revenue: gross_revenue + refund_total (refund_total is negative for returns, so this yields gross minus refunds)."
+              ]
+            },
+            {
+              "column_name": "refund_total",
+              "description": [
+                "Revenue from negative-quantity return lines"
+              ]
+            },
+            {
+              "column_name": "total_orders",
+              "description": [
+                "Distinct invoices for the day"
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "retail_prod.silver.sales_cleaned",
+          "description": [
+            "Cleaned line-item sales data with quality classifications - used for country and guest-checkout queries"
+          ],
+          "column_configs": [
+            {
+              "column_name": "country",
+              "description": [
+                "Customer's country of residence."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "customer_id",
+              "description": [
+                "Customer identifier. NULL for guest checkouts."
+              ]
+            },
+            {
+              "column_name": "description",
+              "description": [
+                "Product name."
+              ]
+            },
+            {
+              "column_name": "invoice",
+              "description": [
+                "Invoice number. Starts with 'C' for cancellation orders."
+              ]
+            },
+            {
+              "column_name": "invoice_date",
+              "description": [
+                "Timestamp of the invoice transaction."
+              ]
+            },
+            {
+              "column_name": "is_cancellation",
+              "description": [
+                "TRUE if the invoice starts with 'C' (cancellation/return order)."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "line_type",
+              "description": [
+                "Classification: 'sale', 'return', or other quality-flagged line type."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "net_line_revenue",
+              "description": [
+                "Line-item revenue: quantity × price, in GBP. Negative for returns."
+              ]
+            },
+            {
+              "column_name": "price",
+              "description": [
+                "Unit price in GBP."
+              ]
+            },
+            {
+              "column_name": "quantity",
+              "description": [
+                "Units purchased. Negative values indicate returns/cancellations."
+              ]
+            },
+            {
+              "column_name": "stock_code",
+              "description": [
+                "Product item code."
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "retail_prod.silver.sales_stitched",
+          "description": [
+            "Sales data with guest checkout identity resolution - subject to UK-only row filter for non-global users"
+          ],
+          "column_configs": [
+            {
+              "column_name": "country",
+              "description": [
+                "Customer's country of residence."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "customer_id",
+              "description": [
+                "Customer identifier. NULL for guest checkouts."
+              ]
+            },
+            {
+              "column_name": "description",
+              "description": [
+                "Product name."
+              ]
+            },
+            {
+              "column_name": "invoice",
+              "description": [
+                "Invoice number. Starts with 'C' for cancellation orders."
+              ]
+            },
+            {
+              "column_name": "invoice_date",
+              "description": [
+                "Timestamp of the invoice transaction."
+              ]
+            },
+            {
+              "column_name": "is_cancellation",
+              "description": [
+                "TRUE if the invoice starts with 'C' (cancellation/return order)."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_guest_checkout",
+              "description": [
+                "TRUE if the order was placed without a registered customer account."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "line_type",
+              "description": [
+                "Classification: 'sale', 'return', or other quality-flagged line type."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "net_line_revenue",
+              "description": [
+                "Line-item revenue: quantity × price, in GBP. Negative for returns."
+              ]
+            },
+            {
+              "column_name": "price",
+              "description": [
+                "Unit price in GBP."
+              ]
+            },
+            {
+              "column_name": "quantity",
+              "description": [
+                "Units purchased. Negative values indicate returns/cancellations."
+              ]
+            },
+            {
+              "column_name": "resolved_customer_id",
+              "description": [
+                "Resolved customer identifier after guest-checkout identity resolution. STRING type to match gold layer."
+              ]
+            },
+            {
+              "column_name": "stock_code",
+              "description": [
+                "Product item code."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "01f1be9f69a619a3bbcb927fe183fac0",
+          "content": [
+            "##Table Usage Guide\n",
+            "- **gold_daily_kpis**: Pre-aggregated daily KPIs — revenue, orders, AOV, cancellation rate. Use for trend analysis, period comparisons, and top-N day queries.\n",
+            "- **gold_customer_features**: One row per customer with lifetime metrics (orders, spend, units, recency). Use for customer segmentation, VIP identification, and churn analysis.\n",
+            "- **sales_cleaned**: Line-item-level sales with quality flags (is_cancellation, line_type). Use for country breakdowns, product-level analysis, and custom aggregations.\n",
+            "- **sales_stitched**: Line-item sales with guest-checkout identity resolution (resolved_customer_id, is_guest_checkout). Use when analyzing guest vs. identified customer behavior. Subject to a UC row filter — non-global users see UK rows only.\n",
+            "\n",
+            "## Key Business Terms\n",
+            "- **VIP customer**: A customer with lifetime_orders > 5.\n",
+            "- **Churn risk**: A VIP customer whose last purchase was more than 180 days before the latest data date (Dec 9, 2011).\n",
+            "- **AOV (Average Order Value)**: Net revenue per completed order. Pre-calculated as `avg_order_value` in gold_daily_kpis; at line-item level use SUM(net_line_revenue) / COUNT(DISTINCT invoice).\n",
+            "- **Gross revenue**: Revenue from positive-quantity sales lines only.\n",
+            "- **Net revenue**: Gross revenue plus refund total (refund_total is negative, so this effectively subtracts returns). Pre-calculated as `net_revenue` in gold_daily_kpis and `net_line_revenue` at line-item level.\n",
+            "\n",
+            "## Important Notes\n",
+            "- All monetary values are in GBP.\n",
+            "- Data covers Dec 2009 through Dec 9, 2011. Dec 2011 is truncated (ends Dec 9) — do not compare Dec 2011 to full Dec 2010 without adjusting for this.\n",
+            "- **customer_id type & masking**: gold_customer_features.customer_id is a STRING column with UC column masking applied. sales_stitched.resolved_customer_id (STRING) is the correct join key for customer-level analysis. sales_cleaned.customer_id is an INT without identity resolution — prefer sales_stitched for customer join paths.\n",
+            "- When joining gold_customer_features to sales_stitched, use: gold_customer_features.customer_id = sales_stitched.resolved_customer_id."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "01f1be9f69a01e18b10b8d36ef4d2d37",
+          "question": [
+            "Which VIP customers are at risk of churn?"
+          ],
+          "sql": [
+            "SELECT customer_id, last_purchase_date, lifetime_orders, net_lifetime_spend, DATEDIFF('2011-12-09', last_purchase_date) AS days_inactive FROM retail_prod.gold.gold_customer_features WHERE DATEDIFF('2011-12-09', last_purchase_date) > 180 AND lifetime_orders > 5 ORDER BY net_lifetime_spend DESC LIMIT 10"
+          ]
+        },
+        {
+          "id": "01f1be9f69a213cd8b7592eae86c3dbb",
+          "question": [
+            "How does holiday 2010 compare to 2009?"
+          ],
+          "sql": [
+            "SELECT YEAR(invoice_date) AS year, SUM(gross_revenue) AS gross_revenue, SUM(net_revenue) AS net_revenue, SUM(total_orders) AS total_orders FROM retail_prod.gold.gold_daily_kpis WHERE (invoice_date >= '2009-12-01' AND invoice_date < '2010-01-01') OR (invoice_date >= '2010-12-01' AND invoice_date < '2011-01-01') GROUP BY YEAR(invoice_date) ORDER BY year"
+          ]
+        },
+        {
+          "id": "01f1be9f69a31902a82ab3dec23aca41",
+          "question": [
+            "What percentage of revenue comes from guest checkouts?"
+          ],
+          "sql": [
+            "SELECT CASE WHEN customer_id IS NULL THEN 'Guest' ELSE 'Identified' END AS checkout_type, SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END) AS gross_revenue, CAST(CAST(SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END) AS DOUBLE) / SUM(SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END)) OVER () * 100 AS DECIMAL(5,2)) AS revenue_pct FROM retail_prod.silver.sales_cleaned GROUP BY CASE WHEN customer_id IS NULL THEN 'Guest' ELSE 'Identified' END ORDER BY checkout_type"
+          ]
+        },
+        {
+          "id": "01f1be9f69a51035aa8e1f14c319c741",
+          "question": [
+            "What is the return rate by country?"
+          ],
+          "sql": [
+            "SELECT country, COUNT(DISTINCT CASE WHEN is_cancellation = TRUE THEN invoice END) AS cancelled_orders, COUNT(DISTINCT invoice) AS total_orders, CAST(CAST(COUNT(DISTINCT CASE WHEN is_cancellation = TRUE THEN invoice END) AS DOUBLE) / COUNT(DISTINCT invoice) * 100 AS DECIMAL(5,2)) AS return_rate_pct FROM retail_prod.silver.sales_cleaned GROUP BY country ORDER BY return_rate_pct DESC"
+          ]
+        },
+        {
+          "id": "01f1be9f69a811e9bc6af8ac590ec371",
+          "question": [
+            "What were the top 5 revenue days in Q4 2010?"
+          ],
+          "sql": [
+            "SELECT invoice_date, net_revenue, total_orders, cancellation_rate_pct FROM retail_prod.gold.gold_daily_kpis WHERE invoice_date >= '2010-10-01' AND invoice_date < '2011-01-01' ORDER BY net_revenue DESC LIMIT 5"
+          ]
+        }
+      ],
+      "join_specs": [
+        {
+          "id": "01f1bea06bbc1311a4b8a12290a46dea",
+          "left": {
+            "identifier": "retail_prod.gold.gold_customer_features"
+          },
+          "right": {
+            "identifier": "retail_prod.silver.sales_stitched"
+          },
+          "sql": [
+            "gold_customer_features.customer_id = sales_stitched.resolved_customer_id",
+            "--rt=FROM_RELATIONSHIP_TYPE_ONE_TO_MANY--"
+          ],
+          "comment": [
+            "Customer features to stitched sales"
+          ]
+        },
+        {
+          "id": "01f1bea06bbc16c7a826be1e16d448ee",
+          "left": {
+            "identifier": "retail_prod.gold.gold_daily_kpis"
+          },
+          "right": {
+            "identifier": "retail_prod.silver.sales_cleaned"
+          },
+          "sql": [
+            "CAST(sales_cleaned.invoice_date AS DATE) = gold_daily_kpis.invoice_date",
+            "--rt=FROM_RELATIONSHIP_TYPE_ONE_TO_MANY--"
+          ],
+          "comment": [
+            "Daily KPIs to cleaned sales"
+          ]
+        },
+        {
+          "id": "01f1bea06bbc1a688d820a8c7ed01636",
+          "left": {
+            "identifier": "retail_prod.silver.sales_cleaned"
+          },
+          "right": {
+            "identifier": "retail_prod.silver.sales_stitched"
+          },
+          "sql": [
+            "sales_cleaned.invoice = sales_stitched.invoice AND sales_cleaned.stock_code = sales_stitched.stock_code",
+            "--rt=FROM_RELATIONSHIP_TYPE_ONE_TO_ONE--"
+          ],
+          "comment": [
+            "Cleaned sales to stitched sales"
+          ]
+        }
+      ],
+      "sql_snippets": {
+        "filters": [
+          {
+            "id": "01f1bea06bc21f2db9a928ee9da75160",
+            "sql": [
+              "sales_cleaned.is_cancellation = true"
+            ],
+            "display_name": "Cancellation orders"
+          },
+          {
+            "id": "01f1bea06bc3122bbc9fc2dfe9eef923",
+            "sql": [
+              "sales_stitched.is_guest_checkout = true"
+            ],
+            "display_name": "Guest checkout orders"
+          },
+          {
+            "id": "01f1bea3127d1e85959e6aa1b6221dbf",
+            "sql": [
+              "sales_cleaned.quantity > 0"
+            ],
+            "display_name": "Positive sales only"
+          },
+          {
+            "id": "01f1bea3127e12bd8644642edbc96abd",
+            "sql": [
+              "sales_cleaned.is_cancellation = false"
+            ],
+            "display_name": "Completed orders only"
+          },
+          {
+            "id": "01f1bea3127e1b50a801f1d785d48adc",
+            "sql": [
+              "sales_cleaned.invoice_date >= '2009-12-01' AND sales_cleaned.invoice_date < '2011-12-10'"
+            ],
+            "display_name": "Data date range"
+          }
+        ],
+        "measures": [
+          {
+            "id": "01f1bea06bc21c0bb8dd4c271f2c3948",
+            "sql": [
+              "SUM(sales_cleaned.net_line_revenue)"
+            ],
+            "display_name": "Net Revenue (line-item level)"
+          },
+          {
+            "id": "01f1bea3127e1765882230f27c81a6fa",
+            "sql": [
+              "SUM(sales_cleaned.net_line_revenue) / COUNT(DISTINCT sales_cleaned.invoice)"
+            ],
+            "display_name": "AOV (line-item level)"
+          }
+        ]
+      }
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "01f1bea14265132fbb0181d80ac85458",
+          "question": [
+            "What were the top 5 revenue days in Q4 2010?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT invoice_date, net_revenue, total_orders, cancellation_rate_pct FROM retail_prod.gold.gold_daily_kpis WHERE invoice_date >= '2010-10-01' AND invoice_date < '2011-01-01' ORDER BY net_revenue DESC LIMIT 5"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "01f1bea14254170c998edded997020ba",
+          "question": [
+            "Which VIP customers are at risk of churning?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT customer_id, last_purchase_date, lifetime_orders, net_lifetime_spend, DATEDIFF('2011-12-09', last_purchase_date) AS days_inactive FROM retail_prod.gold.gold_customer_features WHERE DATEDIFF('2011-12-09', last_purchase_date) > 180 AND lifetime_orders > 5 ORDER BY net_lifetime_spend DESC LIMIT 10"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "01f1bea14243115a88f890caac207172",
+          "question": [
+            "What percentage of revenue comes from guest checkouts?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT CASE WHEN customer_id IS NULL THEN 'Guest' ELSE 'Identified' END AS checkout_type, SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END) AS gross_revenue, CAST(CAST(SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END) AS DOUBLE) / SUM(SUM(CASE WHEN quantity > 0 THEN net_line_revenue ELSE 0 END)) OVER () * 100 AS DECIMAL(5,2)) AS revenue_pct FROM retail_prod.silver.sales_cleaned GROUP BY CASE WHEN customer_id IS NULL THEN 'Guest' ELSE 'Identified' END"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "01f1bea142301e039f0f0cf818591e0b",
+          "question": [
+            "How does holiday 2010 compare to 2009?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT YEAR(invoice_date) AS year, SUM(gross_revenue) AS gross_revenue, SUM(net_revenue) AS net_revenue, SUM(total_orders) AS total_orders FROM retail_prod.gold.gold_daily_kpis WHERE (invoice_date >= '2009-12-01' AND invoice_date < '2010-01-01') OR (invoice_date >= '2010-12-01' AND invoice_date < '2011-01-01') GROUP BY YEAR(invoice_date) ORDER BY year"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "01f1bea142201044b58b7865ff18f0f1",
+          "question": [
+            "What is the return rate by country?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT country, COUNT(DISTINCT CASE WHEN is_cancellation = TRUE THEN invoice END) AS cancelled_orders, COUNT(DISTINCT invoice) AS total_orders, CAST(CAST(COUNT(DISTINCT CASE WHEN is_cancellation = TRUE THEN invoice END) AS DOUBLE) / COUNT(DISTINCT invoice) * 100 AS DECIMAL(5,2)) AS return_rate_pct FROM retail_prod.silver.sales_cleaned GROUP BY country ORDER BY return_rate_pct DESC"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
