@@ -36,40 +36,39 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 ## Production Blueprint & Lakehouse Architecture
 
 ```
-                    ┌──────────────────────────────────────────────┐
-                    │   UCI Online Retail II (2 Excel Sheets)      │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│ BRONZE LAYER (Monotonically Increasing ID, Raw Types Preserved)                 │
-│ synaptiq.online_retail.transactions_raw                                         │
-└──────────────────────────────────────────┬───────────────────────────────────────┘
-                                           │ Window Dedup (_rn = 1)
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│ SILVER LAYER (Classified Transactions, Quarantine & Identity Stitching)          │
-│ • retail_prod.silver.transactions_clean                                          │
-│ • retail_prod.silver.quarantine_non_inventory (POST, DOT, BANK CHARGES)          │
-│ • retail_prod.silver.sales_stitched (Guest Checkout Attribution)                 │
-└──────────────────────────────────────────┬───────────────────────────────────────┘
-                                           │ Sub-second Aggregations
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│ GOLD LAYER & GOVERNANCE                                                          │
-│ • gold_daily_kpis: Daily sales, order counts, cancellation rates                 │
-│ • gold_customer_features: RFM metrics, LTV, return risk indicators               │
-│ • Unity Catalog Dynamic Masking: Non-admins see ***MASKED*** customer IDs        │
-│ • Row-Level Security: Regional sales restriction based on user groups            │
-└───────────────────────┬──────────────────────────────────┬───────────────────────┘
-                        │                                  │
-                        ▼                                  ▼
-         ┌─────────────────────────────┐    ┌─────────────────────────────┐
-         │ PREDICTIVE MLFLOW MODEL     │    │ SELF-SERVICE AI/BI (GENIE)  │
-         │ Return Propensity Model     │    │ Natural language SQL Q&A    │
-         │ Random Forest (ROC-AUC 0.89)│    │ Optimized with ANALYZE      │
-         └─────────────────────────────┘    └─────────────────────────────┘
+graph TD
+    %% Tonal Palette Styling
+    classDef source fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#0F172A;
+    classDef bronze fill:#FFFBEB,stroke:#F59E0B,stroke-width:1.5px,color:#92400E;
+    classDef silver fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#3730A3;
+    classDef gold fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#065F46;
+    classDef serving fill:#F3E8FF,stroke:#A855F7,stroke-width:1.5px,color:#6B21A8;
+    classDef uc fill:#0F172A,stroke:#334155,stroke-width:1.5px,color:#F8FAFC;
+
+    %% Pipeline Nodes
+    S[1. Data Landing Zone<br/><b>UCI Online Retail II Dataset</b><br/><i>1.07M Raw Transaction Line Items</i>]
+    B[2. Bronze Layer<br/><b>synaptiq.online_retail.transactions_raw</b><br/><i>Monotonically Increasing PKs • Raw Types Preserved</i>]
+    SLV[3. Silver Layer<br/><b>retail_prod.silver.transactions_clean & sales_stitched</b><br/><i>Deduplicated (_rn=1) • Non-Inventory Quarantine • Guest Identity Stitching</i>]
+    G[4. Gold Layer<br/><b>gold_daily_kpis & gold_customer_features</b><br/><i>Sub-Second Aggregations • Dual-Engine Parity Verified (PySpark == Spark SQL)</i>]
+    SRV[5. Serving & Machine Learning<br/><b>MLflow Model & Databricks Genie AI/BI</b><br/><i>Random Forest Return Propensity (ROC 0.89) • Natural Language SQL</i>]
+    UC[6. Unity Catalog Governance<br/><i>Dynamic Masking (customer_id UDF) • Row-Level Security • End-to-End Lineage</i>]
+
+    %% Data Flow
+    S -->|Raw Batch Import| B
+    B -->|Window Dedup & Quarantine| SLV
+    SLV -->|Feature Eng & Aggregation| G
+    G -->|Model Training & SQL Serving| SRV
+    SRV -.- UC
+
+    %% Styling Assignments
+    class S source;
+    class B bronze;
+    class SLV silver;
+    class G gold;
+    class SRV serving;
+    class UC uc;
 ```
+      
 
 ### Key Technical Capabilities
 
