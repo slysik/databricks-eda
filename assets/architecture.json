@@ -1,0 +1,18 @@
+{
+  "kicker": "DATABRICKS · ONLINE RETAIL II",
+  "title": "ARCHITECTURE",
+  "layout": "architecture",
+  "nodes": [
+    {"icon": "file-spreadsheet", "title": "Landing", "sub": "UCI Online Retail II\n1.07M rows · 2 Excel sheets", "color": "amber"},
+    {"icon": "database", "title": "Bronze", "sub": "online_retail.transactions_raw\nraw values · sheet-tagged", "color": "orange"},
+    {"icon": "filter", "title": "Silver", "sub": "sales_cleaned · sales_stitched\nquarantine · CHECK · stitching", "color": "purple"},
+    {"icon": "gem", "title": "Gold", "sub": "gold_daily_kpis\ngold_customer_features", "color": "green"}
+  ],
+  "edges": ["import", "validate", "aggregate"],
+  "outputs_label": "serves",
+  "outputs": [
+    {"icon": "brain-circuit", "title": "MLflow model", "sub": "return_propensity_model\nregistered in UC · ROC-AUC 0.89", "color": "blue"},
+    {"icon": "sparkles", "title": "EDA Genie agent", "sub": "plain-English Q&A · charts + SQL\n4 governed tables", "color": "pink"}
+  ],
+  "band": {"icon": "shield-check", "title": "Unity Catalog governance", "sub": "mask_customer_id column mask  ·  filter_uk_region row filter  ·  lineage  ·  answers and models inherit every policy", "color": "blue"}
+}

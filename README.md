@@ -47,11 +47,9 @@ Exploratory data analysis of UCI *Online Retail II*, taken all the way to produc
 
 ## 🏗️ Architecture
 
-<p align="center">
-  <img src="assets/architecture.png" width="520" alt="Architecture: Landing, Bronze, Silver, Gold, Serving & ML, Unity Catalog governance, EDA Genie Agent">
-</p>
+![Architecture: Landing, Bronze, Silver and Gold on Databricks, serving an MLflow model and the EDA Genie agent, all under Unity Catalog governance](assets/architecture.png)
 
-<sub>Diagram source: [`assets/architecture.mmd`](assets/architecture.mmd) (Mermaid)</sub>
+<sub>Diagram source: [`assets/architecture.json`](assets/architecture.json), rendered with a small HTML-to-PNG diagram kit.</sub>
 
 ### What's under the hood
 | Capability | How |
