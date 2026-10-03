@@ -100,8 +100,7 @@ graph TD
 
 | File | Description |
 | :--- | :--- |
-| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Latest Gold Notebook (v1):** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
-| **`eda_online_retail_ii.ipynb`** | **Interactive Jupyter Notebook:** Identical latest copy for standard reference. |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Interactive Jupyter Notebook:** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
 | **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
 | **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (tables, instructions, sample questions, example SQL). Recreate it with the Genie API or notebook §14. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
@@ -109,7 +108,6 @@ graph TD
 | **`demo/genie_agent_demo.mp4`** | **Genie Agent Demo Video:** 36-second captioned walkthrough of the agent answering questions with charts and SQL (GIF preview at the top of this README). |
 | **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables. |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
-| **`eda_interview_exercise.md`** | **Analytical Brief:** Project prompt, problem statement, and interview evaluation criteria. |
 
 ---
 
@@ -119,7 +117,7 @@ graph TD
 This repo is linked as a Databricks **Git folder** at `/Workspace/Users/<you>/databricks-eda` (Workspace → Create → Git folder → `https://github.com/slysik/databricks-eda`). Or import a single notebook:
 
 1. In your Databricks workspace, navigate to **Workspace**.
-2. Click **Import** &rarr; select **`eda_online_retail_ii.ipynb`**.
+2. Click **Import** &rarr; select **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`**.
 3. Attach to any **Serverless Compute** or standard cluster (DBR 14.3+).
 4. Run all cells or view in **Results only** mode for clean presentation display.
 
