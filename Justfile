@@ -42,6 +42,45 @@ sync profile="primary-aws-user" repo_id="2455351154855299":
     @echo "✅ Databricks Git folder synced to latest main"
 
 # -----------------------------------------------------------------------------
+# Databricks Asset Bundles (DAB)
+# -----------------------------------------------------------------------------
+
+# Validate the DAB config (checks YAML syntax + variables)
+dab-validate target="dev":
+    @databricks bundle validate --target {{target}}
+
+# Preview what will be deployed (dry run)
+dab-plan target="dev":
+    @databricks bundle plan --target {{target}}
+
+# Deploy notebooks + create/update the job
+dab-deploy target="dev":
+    @databricks bundle deploy --target {{target}}
+    @echo "✅ Deployed to {{target}}"
+
+# Run the pipeline job
+dab-run target="dev":
+    @databricks bundle run eda_retail_pipeline --target {{target}}
+
+# Show bundle summary (job URL, workspace path)
+dab-summary target="dev":
+    @databricks bundle summary --target {{target}}
+
+# Open the job in the browser
+dab-open target="dev":
+    @open "$$(databricks bundle summary --target {{target}} 2>/dev/null | grep 'URL:' | awk '{print $$2}')" 2>/dev/null || echo "Run: just dab-summary {{target}} to get the URL"
+
+# Destroy deployed resources (careful!)
+dab-destroy target="dev":
+    @databricks bundle destroy --target {{target}}
+
+# Full cycle: validate → deploy → run
+dab target="dev":
+    @just dab-validate {{target}}
+    @just dab-deploy {{target}}
+    @just dab-run {{target}}
+
+# -----------------------------------------------------------------------------
 # Validation & Linting
 # -----------------------------------------------------------------------------
 

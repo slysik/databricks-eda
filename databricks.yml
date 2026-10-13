@@ -1,0 +1,102 @@
+# Databricks Asset Bundle: EDA Retail Lakehouse Blueprint
+# Deploys notebooks, Genie agent, and a scheduled pipeline job
+
+bundle:
+  name: eda-retail-lakehouse
+
+# Use your authenticated profile
+workspace:
+  profile: primary-aws-user
+
+# Variable declarations (assigned per target below)
+variables:
+  catalog:
+    description: "Unity Catalog catalog name"
+    default: retail_dev
+  warehouse_id:
+    description: "SQL warehouse ID for queries"
+    default: "4bbaafe9538467a0"
+  genie_space_name:
+    description: "Genie agent name"
+    default: "EDA Governed Gold Analytics"
+
+# ─── RESOURCES: What gets deployed ───────────────────────────────────────────
+resources:
+  jobs:
+    eda_retail_pipeline:
+      name: "EDA Retail Lakehouse Pipeline"
+      description: "Ingest, dedup, quarantine, gold, governance, genie"
+      tags:
+        project: eda-retail
+
+      # All tasks use serverless compute
+      tasks:
+        - task_key: bronze_ingest
+          notebook_task:
+            notebook_path: "${workspace.file_path}/src/01_bronze_ingest"
+            base_parameters:
+              catalog: "${var.catalog}"
+
+        - task_key: silver_clean
+          depends_on:
+            - task_key: bronze_ingest
+          notebook_task:
+            notebook_path: "${workspace.file_path}/src/02_silver_clean"
+            base_parameters:
+              catalog: "${var.catalog}"
+
+        - task_key: gold_aggregate
+          depends_on:
+            - task_key: silver_clean
+          notebook_task:
+            notebook_path: "${workspace.file_path}/src/03_gold_aggregate"
+            base_parameters:
+              catalog: "${var.catalog}"
+
+        - task_key: apply_governance
+          depends_on:
+            - task_key: gold_aggregate
+          notebook_task:
+            notebook_path: "${workspace.file_path}/src/04_governance"
+            base_parameters:
+              catalog: "${var.catalog}"
+              warehouse_id: "${var.warehouse_id}"
+
+        - task_key: create_genie
+          depends_on:
+            - task_key: apply_governance
+          notebook_task:
+            notebook_path: "${workspace.file_path}/src/05_genie_agent"
+            base_parameters:
+              catalog: "${var.catalog}"
+              warehouse_id: "${var.warehouse_id}"
+              genie_space_name: "${var.genie_space_name}"
+
+      timeout_seconds: 1800
+
+# ─── TARGETS: Where it deploys ───────────────────────────────────────────────
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      profile: primary-aws-user
+    variables:
+      catalog: retail_dev
+      warehouse_id: "4bbaafe9538467a0"
+      genie_space_name: "EDA Governed Gold Analytics (dev)"
+
+  prod:
+    mode: production
+    workspace:
+      profile: primary-aws-user
+      root_path: /Workspace/Users/lysiak043@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: retail_prod
+      warehouse_id: "4bbaafe9538467a0"
+      genie_space_name: "EDA Governed Gold Analytics"
+
+# ─── SYNC: Local files to upload ─────────────────────────────────────────────
+sync:
+  paths:
+    - src
