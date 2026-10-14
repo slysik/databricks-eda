@@ -22,6 +22,19 @@ variables:
 
 # ─── RESOURCES: What gets deployed ───────────────────────────────────────────
 resources:
+  pipelines:
+    retail_sdp:
+      name: "retail-sdp"
+      catalog: "${var.catalog}"
+      schema: "bronze"
+      serverless: true
+      continuous: false
+      configuration:
+        catalog: "${var.catalog}"
+      libraries:
+        - glob:
+            include: "${workspace.file_path}/src/pipelines/retail_sdp/transformations/**"
+
   jobs:
     eda_retail_pipeline:
       name: "EDA Retail Lakehouse Pipeline"
