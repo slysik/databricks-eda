@@ -51,7 +51,7 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 1. **Dual-Engine Mathematical Parity:**
    Every analytical figure and KPI is implemented in two independent engines (PySpark DataFrame API and Spark SQL dialect), then programmatically evaluated against a zero-tolerance assertion harness.
 2. **Bronze Ingestion from Unity Catalog (not file-based):**
-   `src/01_bronze_ingest.py` reads the source rows directly from the existing `synaptiq.online_retail.transactions_raw` UC table via `spark.table()` — there is no Excel/Volume file read or Auto Loader step. A window-function dedup (partitioned on invoice, SKU, timestamp, qty, price, customer, country) removes the 22,523-row sheet overlap, and the result is written `overwrite` to `{catalog}.bronze.transactions_raw` for idempotent re-runs.
+   `src/01_bronze_ingest.py` reads the source rows directly from the existing `retail_source.online_retail.transactions_raw` UC table via `spark.table()` — there is no Excel/Volume file read or Auto Loader step. A window-function dedup (partitioned on invoice, SKU, timestamp, qty, price, customer, country) removes the 22,523-row sheet overlap, and the result is written `overwrite` to `{catalog}.bronze.transactions_raw` for idempotent re-runs.
 3. **Deterministic Data Quality & Quarantine:**
    Delta `CHECK` constraints prevent fatal anomalies (`quantity != 0`, `price >= 0`), while non-inventory service codes (`POST`, `D`, `BANK CHARGES`, `AMAZONFEE`) are isolated into an audit quarantine table without breaking ingestion pipelines.
 4. **Customer Identity Stitching:**

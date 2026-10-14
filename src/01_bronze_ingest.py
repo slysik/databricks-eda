@@ -3,7 +3,7 @@
 # MAGIC %md
 # MAGIC ## 01. Bronze Ingestion & Deduplication
 # MAGIC
-# MAGIC **Input:** Existing `synaptiq.online_retail.transactions_raw` table
+# MAGIC **Input:** Existing `retail_source.online_retail.transactions_raw` table
 # MAGIC **Output:** `retail_dev.bronze.transactions_raw` (deduplicated)
 # MAGIC
 # MAGIC Key data trap: the two sheets overlap by 22,523 rows (1-9 Dec 2010).
@@ -19,7 +19,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
 # -- Read from existing table (already in workspace) --
-raw = spark.table("synaptiq.online_retail.transactions_raw")
+raw = spark.table("retail_source.online_retail.transactions_raw")
 
 # -- Deduplicate: keep first occurrence by composite key --
 # Note: input_file_name() not supported in UC, use _metadata.file_path if needed
