@@ -12,7 +12,7 @@ workspace:
 variables:
   catalog:
     description: "Unity Catalog catalog name"
-    default: retail_dev
+    default: retail_prod
   warehouse_id:
     description: "SQL warehouse ID for queries"
     default: "4bbaafe9538467a0"
@@ -82,7 +82,7 @@ targets:
     workspace:
       profile: primary-aws-user
     variables:
-      catalog: retail_dev
+      catalog: retail_prod
       warehouse_id: "4bbaafe9538467a0"
       genie_space_name: "EDA Governed Gold Analytics (dev)"
 

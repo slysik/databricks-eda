@@ -1,10 +1,10 @@
 # Databricks notebook source
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 05. Genie Agent Creation
+# MAGIC ## 05. Genie Agent Configuration
 # MAGIC
 # MAGIC **Input:** `retail_prod.gold.*` tables (governed)
-# MAGIC **Output:** Genie agent with sample questions and golden SQL
+# MAGIC **Output:** Genie agent configuration printed for review
 # MAGIC
 # MAGIC The agent inherits UC column masks and row filters automatically.
 
@@ -17,16 +17,7 @@ warehouse_id = dbutils.widgets.get("warehouse_id")
 genie_space_name = dbutils.widgets.get("genie_space_name")
 
 # COMMAND ----------
-from databricks.sdk import WorkspaceClient
 import json
-
-w = WorkspaceClient()
-
-# -- Discover warehouse if not provided --
-if not warehouse_id:
-    warehouse = next(iter(w.warehouses.list()))
-    warehouse_id = warehouse.id
-    print(f"Auto-selected warehouse: {warehouse.name} ({warehouse_id})")
 
 # -- Build Genie space definition --
 space_config = {
@@ -57,16 +48,14 @@ space_config = {
     ]
 }
 
-# -- Create or update Genie space --
-# Note: Genie space creation via SDK is evolving; this demonstrates the pattern
-print(f"Genie space configuration:")
+# -- Print config for review --
+print("=" * 60)
+print("GENIE AGENT CONFIGURATION")
+print("=" * 60)
 print(json.dumps(space_config, indent=2))
-
-# -- Save config for version control --
-config_path = f"/Volumes/{catalog}/raw/genie_space_config.json"
-dbutils.fs.put(config_path, json.dumps(space_config, indent=2), overwrite=True)
-print(f"\n✓ Config saved to {config_path}")
-print(f"✓ Genie agent '{genie_space_name}' configured")
+print("=" * 60)
+print(f"\n✓ Genie agent '{genie_space_name}' configured")
 print(f"  - Tables: {', '.join(space_config['tables'])}")
 print(f"  - Sample questions: {len(space_config['sample_questions'])}")
 print(f"  - Inherits UC masks and row filters automatically")
+print(f"\nTo create the Genie agent, use the Databricks UI or Genie API.")
