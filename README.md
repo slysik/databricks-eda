@@ -19,66 +19,59 @@ The design deliberately separates deterministic controls—ingestion, deduplicat
 
 ```mermaid
 flowchart LR
-    subgraph Source["Data Source"]
-        SRC["retail_source.online_retail<br/>transactions_raw"]
+    subgraph src["Source"]
+        SRC[("retail_source<br/>.online_retail<br/>.transactions_raw")]
     end
 
-    subgraph Bronze["Bronze Layer"]
-        B_ING["Deduplication<br/>(Window Function)"]
-        B_TBL["bronze.transactions_raw<br/>(idempotent overwrite)"]
+    subgraph bronze["Bronze"]
+        B[("transactions_raw<br/>deduplicated")]
     end
 
-    subgraph Silver["Silver Layer"]
-        S_CLS["6-Class Line<br/>Categorization"]
-        S_Q["Quarantine<br/>sales_quarantine"]
-        S_CLN["Clean Sales<br/>sales_cleaned"]
-        S_STC["Identity Stitching<br/>sales_stitched"]
+    subgraph silver["Silver"]
+        S1[("sales_cleaned")]
+        S2[("sales_quarantine")]
+        S3[("sales_stitched")]
     end
 
-    subgraph Gold["Gold Layer"]
-        G_KPI["gold_daily_kpis<br/>(Revenue, Orders, AOV)"]
-        G_RFM["gold_customer_features<br/>(RFM + LTV)"]
+    subgraph gold["Gold"]
+        G1[("gold_daily_kpis")]
+        G2[("gold_customer_features")]
     end
 
-    subgraph Governance["Unity Catalog Governance"]
-        UC_MASK["Column Mask<br/>(customer_id)"]
-        UC_RLS["Row Filter<br/>(UK-only)"]
+    subgraph serve["Serving"]
+        GENIE["Genie Agent"]
+        MCP["MCP Server"]
+        ML["MLflow Model"]
     end
 
-    subgraph Serving["Serving & AI"]
-        GENIE["Genie Agent<br/>(NL Analytics)"]
-        MCP_S["MCP Server<br/>(Purpose-built Tools)"]
-        ML_M["MLflow Model<br/>(Return Propensity)"]
+    subgraph gov["Governance"]
+        MASK["Column Mask"]
+        RLS["Row Filter"]
     end
 
-    subgraph XCut["Cross-Cutting Controls"]
-        QC["Quality Constraints<br/>(Delta CHECK)"]
-        PAR["Dual-Engine Parity<br/>(PySpark = SQL)"]
-        AUD["Audit Quarantine<br/>(Non-product lines)"]
-    end
+    SRC -->|"dedup + ingest"| B
+    B -->|"classify + clean"| S1
+    B -->|"quarantine"| S2
+    S1 -->|"stitch identities"| S3
+    S3 -->|"daily KPIs"| G1
+    S3 -->|"RFM + LTV"| G2
+    G1 --> GENIE
+    G2 --> GENIE
+    G1 --> MCP
+    G2 --> MCP
+    G2 --> ML
+    MASK -.->|"customer_id"| G2
+    RLS -.->|"UK-only"| S3
 
-    SRC --> B_ING --> B_TBL
-    B_TBL --> S_CLS
-    S_CLS -->|sale/cancellation| S_CLN
-    S_CLS -->|non-product| S_Q
-    S_CLN --> S_STC
-    S_STC --> G_KPI
-    S_STC --> G_RFM
-    G_KPI --> GENIE
-    G_RFM --> GENIE
-    G_KPI --> MCP_S
-    G_RFM --> MCP_S
-    G_RFM --> ML_M
-    UC_MASK -.->|applied to| G_RFM
-    UC_RLS -.->|applied to| S_STC
-    QC -.->|enforces| S_CLN
-    PAR -.->|validates| G_KPI
-    AUD -.->|isolates| S_Q
+    style src fill:#1a1a2e,stroke:#16213e,color:#e0e0e0
+    style bronze fill:#1a1a2e,stroke:#e2b714,color:#e0e0e0
+    style silver fill:#1a1a2e,stroke:#4ecca3,color:#e0e0e0
+    style gold fill:#1a1a2e,stroke:#e94560,color:#e0e0e0
+    style serve fill:#1a1a2e,stroke:#0f3460,color:#e0e0e0
+    style gov fill:#1a1a2e,stroke:#533483,color:#e0e0e0
 ```
 
-For a detailed view of the existing architecture visual, see:
-
-![Excel to Genie flow: landing zone through bronze, silver, gold, serving, governance, and the EDA Genie agent](assets/excel_to_genie_flow_v2.png)
+*Mermaid renders natively on GitHub. For a detailed annotated version with cross-cutting controls, see [`assets/architecture_diagram.md`](assets/architecture_diagram.md).*
 
 ---
 
@@ -98,11 +91,11 @@ For a detailed view of the existing architecture visual, see:
 
 ---
 
-## 🎬 Demo: EDA Genie Agent (36 s)
+## Demo: EDA Genie Agent (36 s)
 
-[![EDA Genie Agent demo: plain-English questions answered with charts and SQL](demo/genie_agent_demo.gif)](https://github.com/slysik/databricks-eda/raw/main/demo/genie_agent_demo.mp4)
+[▶ Watch the Genie Agent demo (MP4)](https://github.com/slysik/databricks-eda/raw/main/demo/genie_agent_demo.mp4)
 
-*Asking the **EDA Governed Analytics** Genie agent (Databricks Genie One) two business questions. Answers come back as charts with the SQL behind them, from governed Unity Catalog tables. ▶ [Watch the full-quality MP4](https://github.com/slysik/databricks-eda/raw/main/demo/genie_agent_demo.mp4).*
+*The **EDA Governed Analytics** Genie agent answers two business questions with charts and SQL, from governed Unity Catalog tables.*
 
 ---
 
@@ -134,9 +127,7 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 
 ---
 
-![Excel to Genie flow: landing zone through bronze, silver, gold, serving, governance, and the EDA Genie agent](assets/excel_to_genie_flow_v2.png)
-
-**Live Genie agent:** [EDA Governed Gold Analytics](https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1be9f6999187ea0956f86f5fe7e9b?o=7474656067656578) (workspace access required) · definition in [`genie/eda_governed_gold_space.json`](genie/eda_governed_gold_space.json)
+**Live Genie agent:** [EDA Governed Gold Analytics](https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1be9f6999187ea0956f86f5fe7e9b?o=7474656067656578) (workspace access required) · definition in [`genie/space_config.json`](genie/space_config.json)
 
 
 ### Key Technical Capabilities
@@ -172,15 +163,15 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 | **`src/05_genie_agent.py`** | **Genie Agent Config:** Space definition with governed tables, instructions, sample questions. |
 | **`src/pipelines/retail_sdp/`** | **Spark Declarative Pipeline:** Declarative implementation of the same medallion flow. |
 | **`mcp-retail-server/`** | **Purpose-built MCP server:** 6 tools shaped to executive questions (KPIs, segments, period compares, revenue breakdown, DQ check, return-risk prediction) — not a raw SQL passthrough. FastMCP pure functions, UC-secured service principal, MLflow traces on every call. |
-| **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space. |
+| **`genie/space_config.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (used by `deploy_genie.py`). |
 | **`genie/ask_genie.py`** | **Genie CLI:** Ask the live Genie One Agent a plain-English question from the terminal. |
 | **`genie/deploy_genie.py`** | **Genie Deploy:** Create or update the Genie Space definition via the Databricks SDK. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Interactive Jupyter Notebook:** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
 | **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
 | **`eda_online_retail_ii_sql.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
-| **`demo/genie_agent_demo.mp4`** | **Genie Agent Demo Video:** 36-second captioned walkthrough of the agent answering questions with charts and SQL (GIF preview at the top of this README). |
-| **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables. |
+| **`demo/genie_agent_demo.mp4`** | **Genie Agent Demo Video:** 36-second captioned walkthrough of the agent answering questions with charts and SQL. |
+| **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables (used in presentation build). |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
 | **`databricks.yml`** | **Databricks Asset Bundle:** Declarative deployment of notebooks, SDP pipeline, and scheduled job. |
 | **`Justfile`** | **Command Runner:** One-command developer & review workflows (`just preview`, `just demo`, `just build`, `just ask`). |

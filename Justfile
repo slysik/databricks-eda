@@ -4,35 +4,39 @@ default:
     @just --list
 
 # -----------------------------------------------------------------------------
-# Presentation & Deliverables
+# Quick Start (new team members: run `just` to see all commands)
 # -----------------------------------------------------------------------------
 
-# Recompile the HTML executive presentation from notebook run export
-build:
-    @uv run --with markdown python build_presentation.py "eda-online-retail-gold-V1-2026-10-02 17_48_41.html" eda_online_retail_ii_presentation.html
-    @echo "✅ Rebuilt eda_online_retail_ii_presentation.html"
+# Show this help
+help:
+    @just --list
 
-# Open the HTML presentation in your default browser
+# Validate everything (Python syntax, JSON, YAML, docs, DAB)
+validate:
+    @bash scripts/validate.sh
+
+# Open the executive HTML presentation in your browser
 preview:
     @open eda_online_retail_ii_presentation.html || xdg-open eda_online_retail_ii_presentation.html 2>/dev/null || echo "Open eda_online_retail_ii_presentation.html in your browser"
-
-# Open the full pre-rendered executed notebook in your default browser
-notebook:
-    @open "eda-online-retail-gold-V1-2026-10-02 17_48_41.html" || xdg-open "eda-online-retail-gold-V1-2026-10-02 17_48_41.html" 2>/dev/null || echo "Open eda-online-retail-gold-V1-2026-10-02 17_48_41.html in your browser"
 
 # Play the 36-second Genie Agent demo video
 demo:
     @open demo/genie_agent_demo.mp4 || xdg-open demo/genie_agent_demo.mp4 2>/dev/null || echo "Open demo/genie_agent_demo.mp4"
 
+# Recompile presentation from a notebook run export (requires: just build <notebook.html>)
+build notebook_html="eda-online-retail-gold-V1-2026-10-02 17_48_41.html":
+    @uv run --with markdown python build_presentation.py "{{notebook_html}}" eda_online_retail_ii_presentation.html
+    @echo "✅ Rebuilt eda_online_retail_ii_presentation.html"
+
 # -----------------------------------------------------------------------------
 # Databricks & Genie AI/BI
 # -----------------------------------------------------------------------------
 
-# Ask the live Genie One Agent a plain-English question from the CLI
+# Ask the live Genie One Agent a plain-English question
 ask question="What percentage of revenue comes from guest checkouts?" profile="primary-aws-user":
     @uv run --with databricks-sdk python genie/ask_genie.py "{{question}}" --profile {{profile}}
 
-# Deploy or refresh the Genie Space definition in the workspace
+# Deploy or refresh the Genie Space definition
 deploy-genie profile="primary-aws-user":
     @uv run --with databricks-sdk python genie/deploy_genie.py --profile {{profile}}
 
@@ -45,7 +49,7 @@ sync profile="primary-aws-user" repo_id="2455351154855299":
 # Databricks Asset Bundles (DAB)
 # -----------------------------------------------------------------------------
 
-# Validate the DAB config (checks YAML syntax + variables)
+# Validate the DAB config
 dab-validate target="dev":
     @databricks bundle validate --target {{target}}
 
@@ -81,11 +85,11 @@ dab target="dev":
     @just dab-run {{target}}
 
 # -----------------------------------------------------------------------------
-# Validation & Linting
+# Validation (legacy — prefer `just validate`)
 # -----------------------------------------------------------------------------
 
-# Validate Python syntax and JSON schemas
+# Quick check: Python syntax + JSON schemas
 check:
     @python3 -m py_compile build_presentation.py
-    @python3 -m json.tool genie/eda_governed_gold_space.json > /dev/null
+    @python3 -m json.tool genie/space_config.json > /dev/null
     @echo "✅ All build scripts and JSON schemas valid"

@@ -200,7 +200,7 @@ bash scripts/validate.sh
 
 # Or individually:
 python3 -m py_compile build_presentation.py   # Python syntax
-python3 -m json.tool genie/eda_governed_gold_space.json  # JSON schema
+python3 -m json.tool genie/space_config.json  # JSON schema
 databricks bundle validate --target dev       # DAB config
 ```
 

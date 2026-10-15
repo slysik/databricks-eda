@@ -87,7 +87,6 @@ done
 section "JSON Schema Validation"
 
 JSON_FILES=(
-    "genie/eda_governed_gold_space.json"
     "genie/space_config.json"
 )
 

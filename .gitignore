@@ -21,3 +21,8 @@ prev/
 
 # Local archives
 orig/
+
+# Build artifacts
+eda_online_retail_ii_presentation.html
+eda-online-retail-gold-*.html
+demo/genie_agent_demo.gif
