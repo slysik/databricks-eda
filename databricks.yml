@@ -5,7 +5,6 @@
 # - SDP pipeline (retail_sdp) writes to {catalog}.bronze_sdp/silver_sdp/gold_sdp
 #   which nothing reads. Notebook job writes to {catalog}.bronze/silver/gold.
 #   Pick one path for production; the other is a demo/learning artifact.
-# - Same warehouse_id used for dev and prod targets (no isolation).
 # - SDP schema: "bronze" is dead config — transformations fully-qualify their targets.
 
 bundle:
@@ -103,7 +102,7 @@ targets:
       profile: primary-aws-user
     variables:
       catalog: retail_prod
-      warehouse_id: "4bbaafe9538467a0"
+      warehouse_id: "4bbaafe9538467a0"  # Shared starter warehouse (free tier)
       genie_space_name: "EDA Governed Gold Analytics (dev)"
 
   prod:
@@ -113,6 +112,8 @@ targets:
       root_path: /Workspace/Users/lysiak043@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: retail_prod
+      # IMPORTANT: Use a separate warehouse for prod to avoid dev/prod contention.
+      # Create a dedicated prod warehouse in the Databricks UI and paste its ID here.
       warehouse_id: "4bbaafe9538467a0"
       genie_space_name: "EDA Governed Gold Analytics"
 
