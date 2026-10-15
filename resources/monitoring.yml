@@ -1,0 +1,214 @@
+# =============================================================================
+# Monitoring Alerts for EDA Pipeline & Genie Health
+# =============================================================================
+# Deploy with: databricks bundle deploy --target dev
+# Alerts run daily and email on failure.
+# =============================================================================
+
+resources:
+  # --------------------------------------------------------------------------
+  # Alert 1: Pipeline Health — did the job run today?
+  # --------------------------------------------------------------------------
+  alerts:
+    pipeline_health:
+      display_name: "[${bundle.target}] EDA Pipeline Health"
+      query_text: |
+        SELECT
+          CASE
+            WHEN MAX(completed_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS THEN 1
+            ELSE 0
+          END AS pipeline_healthy
+        FROM system.lakeflow.job_run_timeline
+        WHERE job_id = (
+          SELECT job_id FROM system.lakeflow.jobs
+          WHERE job_name = 'EDA Retail Lakehouse Pipeline'
+          LIMIT 1
+        )
+        AND completed_time >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
+      warehouse_id: ${var.warehouse_id}
+      evaluation:
+        comparison_operator: 'EQUAL'
+        source:
+          name: 'pipeline_healthy'
+          display: 'pipeline_healthy'
+        threshold:
+          value:
+            double_value: 1
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: "${workspace.current_user.userName}"
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 9 * * ?'
+        timezone_id: 'America/New_York'
+      permissions:
+        - level: CAN_RUN
+          group_name: "users"
+
+    # --------------------------------------------------------------------------
+    # Alert 2: Data Freshness — are Gold tables current?
+    # --------------------------------------------------------------------------
+    data_freshness:
+      display_name: "[${bundle.target}] Gold Table Freshness"
+      query_text: |
+        SELECT
+          CASE
+            WHEN MAX(invoice_date) >= CURRENT_DATE() - INTERVAL 1 DAY THEN 1
+            ELSE 0
+          END AS is_fresh
+        FROM retail_prod.gold.gold_daily_kpis
+      warehouse_id: ${var.warehouse_id}
+      evaluation:
+        comparison_operator: 'EQUAL'
+        source:
+          name: 'is_fresh'
+          display: 'is_fresh'
+        threshold:
+          value:
+            double_value: 1
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: "${workspace.current_user.userName}"
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 9 * * ?'
+        timezone_id: 'America/New_York'
+      permissions:
+        - level: CAN_RUN
+          group_name: "users"
+
+    # --------------------------------------------------------------------------
+    # Alert 3: Quarantine Rate — data quality check
+    # --------------------------------------------------------------------------
+    quarantine_rate:
+      display_name: "[${bundle.target}] Quarantine Rate"
+      query_text: |
+        SELECT
+          ROUND(
+            (SELECT COUNT(*) FROM retail_prod.silver.sales_quarantine) * 100.0 /
+            NULLIF((SELECT COUNT(*) FROM retail_prod.silver.sales_cleaned), 0),
+            2
+          ) AS quarantine_pct
+      warehouse_id: ${var.warehouse_id}
+      evaluation:
+        comparison_operator: 'LESS_THAN_OR_EQUAL'
+        source:
+          name: 'quarantine_pct'
+          display: 'quarantine_pct'
+        threshold:
+          value:
+            double_value: 15
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: "${workspace.current_user.userName}"
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 9 * * ?'
+        timezone_id: 'America/New_York'
+      permissions:
+        - level: CAN_RUN
+          group_name: "users"
+
+    # --------------------------------------------------------------------------
+    # Alert 4: Row Count Stability — detect unexpected data loss/gain
+    # --------------------------------------------------------------------------
+    row_count_stability:
+      display_name: "[${bundle.target}] Silver Row Count Stability"
+      query_text: |
+        SELECT
+          ABS(COUNT(*) - 1033034) * 100.0 / 1033034 AS deviation_pct
+        FROM retail_prod.silver.sales_cleaned
+      warehouse_id: ${var.warehouse_id}
+      evaluation:
+        comparison_operator: 'LESS_THAN_OR_EQUAL'
+        source:
+          name: 'deviation_pct'
+          display: 'deviation_pct'
+        threshold:
+          value:
+            double_value: 10
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: "${workspace.current_user.userName}"
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 9 * * ?'
+        timezone_id: 'America/New_York'
+      permissions:
+        - level: CAN_RUN
+          group_name: "users"
+
+    # --------------------------------------------------------------------------
+    # Alert 5: Metric View Health — are metric views queryable?
+    # --------------------------------------------------------------------------
+    metric_view_health:
+      display_name: "[${bundle.target}] Metric View Health"
+      query_text: |
+        SELECT
+          CASE
+            WHEN daily_rows > 0 AND customer_rows > 0 AND country_rows > 0 THEN 1
+            ELSE 0
+          END AS all_healthy
+        FROM (
+          SELECT
+            (SELECT COUNT(*) FROM retail_prod.metrics.daily_kpis) AS daily_rows,
+            (SELECT COUNT(*) FROM retail_prod.metrics.customer_features) AS customer_rows,
+            (SELECT COUNT(*) FROM retail_prod.metrics.sales_by_country) AS country_rows
+        )
+      warehouse_id: ${var.warehouse_id}
+      evaluation:
+        comparison_operator: 'EQUAL'
+        source:
+          name: 'all_healthy'
+          display: 'all_healthy'
+        threshold:
+          value:
+            double_value: 1
+        notification:
+          notify_on_ok: false
+          subscriptions:
+            - user_email: "${workspace.current_user.userName}"
+      schedule:
+        pause_status: 'UNPAUSED'
+        quartz_cron_schedule: '0 0 9 * * ?'
+        timezone_id: 'America/New_York'
+      permissions:
+        - level: CAN_RUN
+          group_name: "users"
+
+  # --------------------------------------------------------------------------
+  # Daily Health Check Job — runs all monitoring queries
+  # --------------------------------------------------------------------------
+  jobs:
+    daily_health_check:
+      name: "[${bundle.target}] EDA Daily Health Check"
+      description: "Run all health monitoring queries and log results"
+      tags:
+        project: eda-retail
+        type: monitoring
+      tasks:
+        - task_key: run_health_checks
+          notebook_task:
+            notebook_path: ../src/monitoring/01_health_checks.py
+            source: WORKSPACE
+          new_cluster:
+            spark_version: "15.4.x-scala2.12"
+            node_type_id: "i3.xlarge"
+            num_workers: 1
+            spark_conf:
+              "spark.databricks.cluster.profile": "singleNode"
+              "spark.master": "local[*]"
+            custom_tags:
+              "ResourceClass": "SingleNode"
+      schedule:
+        quartz_cron_expression: "0 0 8 * * ?"
+        timezone_id: "America/New_York"
+        pause_status: "UNPAUSED"
+      timeout_seconds: 600
+      permissions:
+        - level: CAN_VIEW
+          group_name: "users"

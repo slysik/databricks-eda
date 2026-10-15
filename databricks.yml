@@ -10,6 +10,9 @@
 bundle:
   name: eda-retail-lakehouse
 
+include:
+  - resources/*.yml
+
 # Use your authenticated profile
 workspace:
   profile: primary-aws-user

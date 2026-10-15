@@ -92,8 +92,12 @@ dab target="dev":
     @just dab-run {{target}}
 
 # -----------------------------------------------------------------------------
-# Validation (legacy — prefer `just validate`)
+# Validation & Linting
 # -----------------------------------------------------------------------------
+
+# Run health checks against the live Databricks workspace
+health profile="primary-aws-user":
+    @bash scripts/health_check.sh {{profile}}
 
 # Quick check: Python syntax + JSON schemas
 check:
