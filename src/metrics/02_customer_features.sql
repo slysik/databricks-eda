@@ -1,7 +1,9 @@
 -- Metric View: Customer Features
 -- Source: retail_prod.gold.gold_customer_features
 -- Purpose: Governed customer segmentation and RFM metrics
--- Usage: SELECT `Value Segment`, MEASURE(`Customer Count`) FROM retail_prod.metrics.customer_features GROUP BY `Value Segment`
+-- Note: Materialization not supported — source table has UC column mask on
+--       customer_id using IS_ACCOUNT_GROUP_MEMBER() (invoker-dependent).
+--       Queries still work; they scan the source table directly.
 
 CREATE OR REPLACE VIEW retail_prod.metrics.customer_features
 WITH METRICS

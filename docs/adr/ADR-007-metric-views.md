@@ -43,7 +43,7 @@ Each view defines reusable dimensions (time periods, segments, country) and gove
 
 Benchmarked on a Serverless Starter Warehouse (2X-Small, Photon enabled) with 5 representative queries, 3 runs each, warmed cache:
 
-| Query | Before (direct) | After (metric view) | Delta |
+| Query | Direct Table | Metric View | Delta |
 |:---|---:|---:|---:|
 | Total net revenue | 0.57s | 0.64s | +0.08s |
 | Top 5 revenue days | 0.60s | 0.65s | +0.05s |
@@ -53,6 +53,12 @@ Benchmarked on a Serverless Starter Warehouse (2X-Small, Photon enabled) with 5 
 | **Average** | **0.60s** | **0.68s** | **+0.08s (+13%)** |
 
 The ~13% overhead is from YAML parsing and metric resolution. At this scale (< 5K rows per Gold table), the overhead is negligible. The value is in governance and Genie accuracy, not raw speed.
+
+### Materialization
+
+Two of three metric views support materialization (`daily_kpis` and `sales_by_country`). The `customer_features` view cannot be materialized because the source table has a UC column mask using `IS_ACCOUNT_GROUP_MEMBER()`, which is invoker-dependent.
+
+When materialization pipelines run (scheduled every 6 hours), queries against `daily_kpis` hit pre-computed aggregations and should match or beat direct table query performance. Initial testing shows the pre-existing `daily_kpis_mv` materialized table queries at 0.51s vs 0.68s for direct table scans.
 
 ## Consequences
 

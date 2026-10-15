@@ -1,7 +1,7 @@
--- Metric View: Daily KPIs
+-- Metric View: Daily KPIs (with materialization)
 -- Source: retail_prod.gold.gold_daily_kpis
 -- Purpose: Governed revenue, order, and cancellation metrics
--- Usage: SELECT MEASURE(`Net Revenue`) AS net_rev FROM retail_prod.metrics.daily_kpis GROUP BY `Invoice Month`
+-- Materialization: Pre-computes common aggregations for sub-second queries
 
 CREATE OR REPLACE VIEW retail_prod.metrics.daily_kpis
 WITH METRICS
@@ -9,7 +9,7 @@ LANGUAGE YAML
 AS $$
 version: 1.1
 source: retail_prod.gold.gold_daily_kpis
-comment: "Daily retail KPIs - revenue, orders, cancellations, AOV"
+comment: "Daily retail KPIs - revenue, orders, cancellations, AOV (materialized)"
 dimensions:
   - name: Invoice Date
     expr: invoice_date
@@ -48,4 +48,21 @@ measures:
   - name: Revenue per Day
     expr: "ROUND(SUM(net_revenue) / NULLIF(COUNT(DISTINCT invoice_date), 0), 2)"
     comment: "Average daily net revenue"
+materialization:
+  schedule: every 6 hours
+  mode: relaxed
+  materialized_views:
+    - name: daily_baseline
+      type: unaggregated
+    - name: monthly_summary
+      type: aggregated
+      dimensions:
+        - Invoice Month
+      measures:
+        - Gross Revenue
+        - Net Revenue
+        - Refunds
+        - Total Orders
+        - Cancellations
+        - Avg Order Value
 $$
