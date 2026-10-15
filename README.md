@@ -1,5 +1,5 @@
-# Databricks EDA & Lakehouse Production Blueprint
-### Online Retail II Transaction Analysis & Architecture
+# Databricks Lakehouse Production Blueprint
+### Online Retail Transaction Analysis & Architecture
 
 A dual-engine (**PySpark + Spark SQL**) exploratory data analysis with programmatic parity verification, extending to an enterprise Lakehouse blueprint featuring Gold medallion aggregates, MLflow predictive modeling, Unity Catalog governance, and Genie AI/BI self-service analytics.
 
