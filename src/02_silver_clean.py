@@ -6,10 +6,10 @@
 # MAGIC **Input:** `retail_prod.bronze.transactions_raw`
 # MAGIC **Output:** `retail_prod.silver.sales_cleaned` + `retail_prod.silver.sales_quarantine` + `retail_prod.silver.sales_stitched`
 # MAGIC
-# MAGIC - 6-class line categorization: sale, cancellation, reversed_within_hour, stock_adjustment, non_product, bad_debt
+# MAGIC - 5-class line categorization: sale, cancellation, stock_adjustment, non_product, bad_debt
 # MAGIC - Delta CHECK constraints enforce quality
 # MAGIC - Non-inventory codes go to quarantine, not failure
-# MAGIC - Customer identity stitching for guest checkout analysis
+# MAGIC - Guest surrogate id: one hashed id per guest invoice (does not link a guest's separate invoices)
 
 # COMMAND ----------
 dbutils.widgets.text("catalog", "retail_prod")

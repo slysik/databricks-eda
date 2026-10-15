@@ -8,7 +8,7 @@ import argparse
 import sys
 from databricks.sdk import WorkspaceClient
 
-DEFAULT_SPACE_ID = "01f1be9f6999187ea0956f86f5fe7e9b"
+DEFAULT_SPACE_ID = "01f1beaa006c1e47ab3758b127b2442d"
 
 
 def ask(question: str, space_id: str = DEFAULT_SPACE_ID, profile: str = None):

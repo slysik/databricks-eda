@@ -37,7 +37,7 @@ The notebook-based scripts (`src/01-05_*.py`) remain the **canonical reference i
 - **Declarative DQ:** `@dp.expect_or_drop` is more maintainable than manual constraint management.
 - **Automatic lineage:** SDP tracks data lineage across all materialized views.
 - **Self-managing:** SDP handles orchestration, retry, and incremental computation.
-- **Same logic:** Both implementations use identical business rules (6-class categorization, dedup, stitching).
+- **Same logic:** Both implementations use identical business rules (5-class categorization, dedup, guest surrogate id).
 
 ### Negative
 - **Dual maintenance:** Changes to business logic must be applied to both implementations.
@@ -49,7 +49,7 @@ The notebook-based scripts (`src/01-05_*.py`) remain the **canonical reference i
 ```
 src/pipelines/retail_sdp/transformations/
 ├── 01_bronze_transactions_raw.py    # @dp.materialized_view — dedup + write
-├── 02_silver_classified.py          # @dp.temporary_view — 6-class categorization
+├── 02_silver_classified.py          # @dp.temporary_view — 5-class categorization
 ├── 03_silver_sales_cleaned.py       # @dp.materialized_view — @dp.expect_or_drop x2
 ├── 04_silver_sales_quarantine.py    # @dp.materialized_view — non-product lines
 ├── 05_silver_sales_stitched.py      # @dp.materialized_view — identity stitching + row_filter

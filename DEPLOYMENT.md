@@ -139,7 +139,7 @@ databricks sql query --warehouse-id 4bbaafe9538467a0 \
 # Verify governance
 databricks sql query --warehouse-id 4bbaafe9538467a0 \
   "SELECT customer_id FROM retail_prod.gold.gold_customer_features LIMIT 5"
-# Expected: ***MASKED*** for non-admin users
+# Expected: NULL for non-admin users
 ```
 
 ### Step 5: Deploy Genie Agent
@@ -159,7 +159,7 @@ uv run --with databricks-sdk python genie/deploy_genie.py --profile primary-aws-
 just ask "What percentage of revenue comes from guest checkouts?"
 
 # Or open Genie in the browser
-open "https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1be9f6999187ea0956f86f5fe7e9b?o=7474656067656578"
+open "https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1beaa006c1e47ab3758b127b2442d?o=7474656067656578"
 ```
 
 ---
