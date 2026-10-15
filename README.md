@@ -1,5 +1,4 @@
-# Databricks Lakehouse Production Blueprint
-## Governed self-service analytics, demonstrated on retail transactions
+![Databricks Lakehouse Production Blueprint — Governed self-service analytics, demonstrated on retail transactions](assets/title-banner.svg)
 
 Executives ask questions in plain English and get answers from governed data: no SQL, no report queue, no loosened guardrails. Deterministic medallion pipelines and Unity Catalog enforcement keep every number trustworthy; Genie AI/BI makes them conversational.
 
