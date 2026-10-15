@@ -19,7 +19,7 @@ The design deliberately separates deterministic controls—ingestion, deduplicat
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
-  <img src="assets/architecture-light.svg" alt="Architecture: a source table flows through Bronze dedup into Silver cleaned, stitched and quarantine tables, then Gold daily KPIs and customer features, then Genie, the MCP server and the MLflow model. Delta CHECK constraints, dual-engine parity and Unity Catalog masks and row filters apply across layers." width="100%">
+  <img src="assets/architecture-light.svg" alt="Architecture: a Unity Catalog source table flows into Lakeflow, which builds Bronze, Silver and Gold layers, then into Gold tables that Genie, an MCP server and an MLflow model read. A governance panel lists Unity Catalog access controls, Delta quality checks and dual-engine parity."" width="100%">
 </picture>
 
 *Generated from [`design/tokens.json`](design/tokens.json) by [`scripts/render_architecture.py`](scripts/render_architecture.py). Per-table lineage, the dual-engine parity flow and the SDP variant are in [`assets/architecture_diagram.md`](assets/architecture_diagram.md); colours and type rules are in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).*

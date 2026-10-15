@@ -4,7 +4,7 @@
 Usage: python3 scripts/render_architecture.py        (stdlib only)
 
 Colours come from the token file, so a palette change is one edit plus one run.
-The layout is fixed: five layer panels left to right, one controls band below.
+Layout: source card, one Lakeflow card holding the Bronze/Silver/Gold cylinders, a Lakehouse card, three serving cards, and a governance panel across the top.
 """
 import json
 from pathlib import Path
@@ -14,75 +14,88 @@ TOK = {t["name"]: t["value"] for t in json.loads((ROOT / "design/tokens.json").r
 SANS = json.loads((ROOT / "design/tokens.json").read_text())["type"]["families"]["sans"].replace('"', "'")
 MONO = json.loads((ROOT / "design/tokens.json").read_text())["type"]["families"]["mono"].replace('"', "'")
 
-W, H = 1320, 520
-PANEL_W, PANEL_Y, NODE_W, NODE_H = 220, 58, 200, 64
-COLS = {"source": 40, "bronze": 300, "silver": 560, "gold": 820, "serving": 1080}
-SLOT = {0: 104, 1: 204, 2: 304}  # node tops; centres are +32
+W, H = 1320, 460
+MID = 300  # centre line of the main flow
 
 
 def render(theme: str) -> str:
     c = lambda n: TOK[n][theme]
-    panels = {  # key: (fill, stroke, ink, label)
-        "source": (c("surface-muted"), c("ink-muted"), c("ink-body"), "SOURCE"),
-        "bronze": (c("medallion-bronze-fill"), c("medallion-bronze-stroke"), c("medallion-bronze-ink"), "BRONZE"),
-        "silver": (c("medallion-silver-fill"), c("medallion-silver-stroke"), c("medallion-silver-ink"), "SILVER"),
-        "gold": (c("medallion-gold-fill"), c("medallion-gold-stroke"), c("medallion-gold-ink"), "GOLD"),
-        "serving": (c("medallion-serving-fill"), c("medallion-serving-stroke"), c("medallion-serving-ink"), "SERVING"),
-    }
-    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
-           f'aria-labelledby="t d"><title id="t">EDA Retail Lakehouse architecture</title>'
-           f'<desc id="d">Source table flows through Bronze deduplication into Silver cleaned, stitched and quarantine tables, '
-           f'then Gold daily KPIs and customer features, then Genie, MCP server and MLflow model. '
-           f'Cross-cutting controls: Delta CHECK constraints, dual-engine parity, Unity Catalog masks and row filters.</desc>',
-           f'<style>text{{font-family:{SANS}}} .m{{font-family:{MONO}}} '
-           f'.lbl{{font-size:11px;font-weight:700;letter-spacing:2px}} .nm{{font-size:13px;font-weight:700;fill:{c("ink-primary")}}} '
-           f'.sb{{font-size:12.5px;fill:{c("ink-muted")}}} .ctl{{font-size:12.5px;fill:{c("ink-body")}}}</style>',
-           f'<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">'
-           f'<path d="M0 0L10 5L0 10z" fill="{c("ink-muted")}"/></marker></defs>',
-           f'<rect width="{W}" height="{H}" rx="14" fill="{c("bg")}"/>']
+    ink, mute, line, surf, bg = c("ink-primary"), c("ink-muted"), c("line-strong") if theme == "dark" else c("line"), c("surface"), c("bg")
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-labelledby="t d">'
+           f'<title id="t">EDA Retail Lakehouse architecture</title>'
+           f'<desc id="d">A Unity Catalog source table flows into Lakeflow, where Bronze, Silver and Gold layers are built, then into governed Gold tables. '
+           f'Genie, an MCP server and an MLflow model read the Gold tables. A governance panel above lists Unity Catalog access controls, Delta quality checks and dual-engine parity.</desc>',
+           f'<style>text{{font-family:{SANS}}} .m{{font-family:{MONO}}} .h{{font-size:14px;font-weight:700;fill:{ink}}} '
+           f'.nm{{font-size:13px;font-weight:700;fill:{ink}}} .sb{{font-size:12px;fill:{mute}}} .xs{{font-size:11px;fill:{mute}}} '
+           f'.lb{{font-size:11px;font-weight:700;letter-spacing:1.5px}}</style>',
+           f'<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="{0.10 if theme == "light" else 0.40}"/></filter>'
+           f'<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="{mute}"/></marker></defs>',
+           f'<rect width="{W}" height="{H}" rx="14" fill="{bg}"/>']
 
-    for key, x in COLS.items():
-        fill, stroke, ink, label = panels[key]
-        h = 234 if key == "gold" else 334
-        out.append(f'<rect x="{x-10}" y="{PANEL_Y}" width="{PANEL_W}" height="{h}" rx="14" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>')
-        out.append(f'<text x="{x}" y="84" class="lbl" fill="{ink}">{label}</text>')
+    def card(x, y, w, h, rx=12, fill=None, shadow=True):
+        f = ' filter="url(#sh)"' if shadow else ""
+        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill or surf}" stroke="{line}" stroke-width="1"{f}/>')
 
-    def node(col, slot, name, sub, stroke_key=None):
-        x, y = COLS[col], SLOT[slot]
-        stroke = panels[stroke_key or col][1]
-        out.append(f'<rect x="{x}" y="{y}" width="{NODE_W}" height="{NODE_H}" rx="6" fill="{c("surface")}" stroke="{stroke}" stroke-width="1.25"/>')
-        out.append(f'<text x="{x+14}" y="{y+27}" class="nm m">{name}</text>')
-        out.append(f'<text x="{x+14}" y="{y+47}" class="sb">{sub}</text>')
+    def link(d, dot=None):
+        out.append(f'<path d="{d}" fill="none" stroke="{mute}" stroke-width="1.25" marker-end="url(#a)"/>')
+        if dot:
+            out.append(f'<circle cx="{dot[0]}" cy="{dot[1]}" r="3.5" fill="{c("brand-orange")}"/>')
 
-    def arrow(d):
-        out.append(f'<path d="{d}" fill="none" stroke="{c("ink-muted")}" stroke-width="1.5" marker-end="url(#a)"/>')
+    # title
+    out.append(f'<text x="40" y="52" class="h" style="font-size:16px">EDA Retail Lakehouse</text>')
+    out.append(f'<text x="40" y="72" class="sb">Online Retail II · Dec 2009 to Dec 2011</text>')
 
-    node("source", 1, "transactions_raw", "retail_source · 1.07M rows")
-    node("bronze", 1, "transactions_raw", "dedup · 22,523 rows dropped")
-    node("silver", 0, "sales_cleaned", "typed · sale + cancellation")
-    node("silver", 1, "sales_stitched", "guest checkouts resolved")
-    node("silver", 2, "sales_quarantine", "non-product lines · audit only")
-    node("gold", 0, "gold_daily_kpis", "revenue · orders · AOV")
-    node("gold", 1, "gold_customer_features", "RFM · LTV · return rate")
-    node("serving", 0, "Genie agent", "plain English → SQL → charts")
-    node("serving", 1, "MCP server", "6 business-shaped tools")
-    node("serving", 2, "MLflow model", "return risk · ROC-AUC 0.89")
+    # governance panel (top right)
+    card(640, 20, 640, 104, rx=14)
+    out.append(f'<text x="656" y="44" class="nm" style="fill:{c("accent-navy")}">Governance and quality</text>')
+    for i, (t, sub) in enumerate((("Unity Catalog access", "customer_id mask · UK row filter"),
+                                  ("Delta quality", "CHECK constraints · quarantine"),
+                                  ("Dual-engine parity", "PySpark = Spark SQL, diff 0.00"))):
+        x = 654 + i * 208
+        card(x, 56, 196, 54, rx=8, fill=c("surface-alt"), shadow=False)
+        out.append(f'<circle cx="{x+14}" cy="76" r="3.5" fill="{c("accent-green")}"/>')
+        out.append(f'<text x="{x+26}" y="80" class="nm">{t}</text>')
+        out.append(f'<text x="{x+12}" y="98" class="xs">{sub}</text>')
 
-    arrow("M240 236 H300")                                  # source -> bronze
-    arrow("M500 236 H530 V136 H560")                         # bronze -> cleaned
-    out.append(f'<path d="M530 236 V336 H560" fill="none" stroke="{c("ink-muted")}" stroke-width="1.5" marker-end="url(#a)"/>')  # -> quarantine
-    arrow("M660 168 V204")                                   # cleaned -> stitched
-    arrow("M760 136 H820")                                   # cleaned -> daily kpis
-    arrow("M760 236 H820")                                   # stitched -> customer features
-    arrow("M1030 175 H1070")                                 # gold -> serving
+    # source card
+    card(40, MID - 42, 200, 84)
+    out.append(f'<text x="56" y="{MID-18}" class="lb" style="fill:{c("accent-blue")}">UNITY CATALOG TABLE</text>')
+    out.append(f'<text x="56" y="{MID+6}" class="nm m">transactions_raw</text>')
+    out.append(f'<text x="56" y="{MID+26}" class="sb">retail_source · 1.07M rows</text>')
 
-    gov = c("accent-navy")
-    out.append(f'<rect x="30" y="424" width="1260" height="64" rx="14" fill="none" stroke="{gov}" stroke-width="1.5" stroke-dasharray="6 5"/>')
-    out.append(f'<text x="50" y="448" class="lbl" fill="{gov}">CROSS-CUTTING CONTROLS</text>')
-    for x, t in ((50, "Delta CHECK constraints on Silver; bad rows quarantined"),
-                 (480, "Dual-engine parity: PySpark = Spark SQL, diff 0.00"),
-                 (860, "Unity Catalog: customer_id mask, UK row filter")):
-        out.append(f'<circle cx="{x+4}" cy="468" r="3.5" fill="{c("accent-green")}"/><text x="{x+16}" y="472" class="ctl">{t}</text>')
+    # Lakeflow card with medallion cylinders
+    card(300, 185, 340, 230, rx=16)
+    out.append(f'<text x="320" y="214" class="h">Lakeflow</text><text x="388" y="214" class="sb">ingest, clean, aggregate</text>')
+    out.append(f'<rect x="316" y="228" width="308" height="124" rx="10" fill="{c("surface-alt")}"/>')
+    for cx, k, label, sub in ((370, "bronze", "BRONZE", "dedup"), (470, "silver", "SILVER", "clean · stitch"), (570, "gold", "GOLD", "KPIs · RFM")):
+        f, st, ik = c(f"medallion-{k}-fill"), c(f"medallion-{k}-stroke"), c(f"medallion-{k}-ink")
+        out.append(f'<path d="M{cx-28} 252v38a28 8 0 0 0 56 0v-38" fill="{f}" stroke="{st}" stroke-width="1.5"/>')
+        out.append(f'<ellipse cx="{cx}" cy="252" rx="28" ry="8" fill="{f}" stroke="{st}" stroke-width="1.5"/>')
+        out.append(f'<text x="{cx}" y="320" class="lb" text-anchor="middle" style="fill:{ik}">{label}</text>')
+        out.append(f'<text x="{cx}" y="338" class="xs" text-anchor="middle">{sub}</text>')
+    for x in (402, 502):
+        out.append(f'<line x1="{x}" y1="274" x2="{x+36}" y2="274" stroke="{mute}" stroke-width="1.25" stroke-dasharray="3 3"/>')
+    out.append(f'<text x="320" y="384" class="xs">Notebooks or declarative pipelines (ADR-005)</text>')
+    out.append(f'<text x="320" y="402" class="xs">CHECK constraints and quarantine run in Silver</text>')
+
+    # lakehouse card
+    card(700, MID - 36, 220, 72)
+    out.append(f'<text x="716" y="{MID-8}" class="nm">Gold tables</text>')
+    out.append(f'<text x="716" y="{MID+14}" class="sb">daily KPIs · customer features</text>')
+
+    # serving cards
+    for i, (n, sub) in enumerate((("Genie agent", "plain English → SQL → charts"),
+                                  ("MCP server", "6 business-shaped tools"),
+                                  ("MLflow model", "return risk · ROC-AUC 0.89"))):
+        y = 178 + i * 90
+        card(1000, y, 280, 64)
+        out.append(f'<text x="1018" y="{y+27}" class="nm">{n}</text><text x="1018" y="{y+47}" class="sb">{sub}</text>')
+
+    # connectors, each starting with a brand-orange dot
+    link(f"M240 {MID} H300", (240, MID))
+    link(f"M640 {MID} H700", (640, MID))
+    for i in range(3):
+        link(f"M920 {MID} H960 V{210+i*90} H1000" if i != 1 else f"M920 {MID} H1000", (920, MID) if i == 0 else None)
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
