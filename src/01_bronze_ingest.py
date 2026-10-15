@@ -4,14 +4,14 @@
 # MAGIC ## 01. Bronze Ingestion & Deduplication
 # MAGIC
 # MAGIC **Input:** Existing `retail_source.online_retail.transactions_raw` table
-# MAGIC **Output:** `retail_dev.bronze.transactions_raw` (deduplicated)
+# MAGIC **Output:** `{catalog}.bronze.transactions_raw` (deduplicated)
 # MAGIC
 # MAGIC Key data trap: the two sheets overlap by 22,523 rows (1-9 Dec 2010).
 # MAGIC Naive stacking double-counts ~£377k.
 
 # COMMAND ----------
 # Parameters
-dbutils.widgets.text("catalog", "retail_dev")
+dbutils.widgets.text("catalog", "retail_prod")
 catalog = dbutils.widgets.get("catalog")
 
 # COMMAND ----------

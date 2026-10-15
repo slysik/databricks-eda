@@ -17,62 +17,9 @@ The design deliberately separates deterministic controls—ingestion, deduplicat
 
 ## System Architecture
 
-```mermaid
-flowchart LR
-    subgraph src["Source"]
-        SRC[("retail_source<br/>.online_retail<br/>.transactions_raw")]
-    end
+![EDA Retail Lakehouse architecture — source, Bronze, Silver, Gold, serving (Genie + MCP), governance panel, and honest MLflow disclosure](assets/architecture-light.svg)
 
-    subgraph bronze["Bronze"]
-        B[("transactions_raw<br/>deduplicated")]
-    end
-
-    subgraph silver["Silver"]
-        S1[("sales_cleaned")]
-        S2[("sales_quarantine")]
-        S3[("sales_stitched")]
-    end
-
-    subgraph gold["Gold"]
-        G1[("gold_daily_kpis")]
-        G2[("gold_customer_features")]
-    end
-
-    subgraph serve["Serving"]
-        GENIE["Genie Agent"]
-        MCP["MCP Server"]
-        ML["MLflow Model<br/>(trained, not served)"]
-    end
-
-    subgraph gov["Governance"]
-        MASK["Column Mask"]
-        RLS["Row Filter"]
-    end
-
-    SRC -->|"dedup + ingest"| B
-    B -->|"classify + clean"| S1
-    B -->|"quarantine"| S2
-    S1 -->|"stitch identities"| S3
-    S3 -->|"daily KPIs"| G1
-    S3 -->|"RFM + LTV"| G2
-    G1 --> GENIE
-    G2 --> GENIE
-    G1 --> MCP
-    G2 --> MCP
-    G2 --> ML
-    MASK -.->|"customer_id"| G2
-    RLS -.->|"UK-only"| S3
-
-    style src fill:#1a1a2e,stroke:#16213e,color:#e0e0e0
-    style bronze fill:#1a1a2e,stroke:#e2b714,color:#e0e0e0
-    style silver fill:#1a1a2e,stroke:#4ecca3,color:#e0e0e0
-    style gold fill:#1a1a2e,stroke:#e94560,color:#e0e0e0
-    style serve fill:#1a1a2e,stroke:#0f3460,color:#e0e0e0
-    style gov fill:#1a1a2e,stroke:#533483,color:#e0e0e0
-    style ML stroke-dasharray:5 5,color:#94a3b8
-```
-
-*Mermaid renders natively on GitHub. For a detailed annotated version with cross-cutting controls, see [`assets/architecture_diagram.md`](assets/architecture_diagram.md). For the walkthrough visual, open [`assets/architecture-light.svg`](assets/architecture-light.svg) — token-driven, shows governance, and discloses the MLflow model status.*
+*For a dark-theme variant, see [`assets/architecture-dark.svg`](assets/architecture-dark.svg). For a detailed annotated Mermaid version with cross-cutting controls, see [`assets/architecture_diagram.md`](assets/architecture_diagram.md).*
 
 ---
 

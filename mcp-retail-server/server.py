@@ -15,7 +15,6 @@ Every call is traced to MLflow for observability.
 import json
 import os
 import time
-from datetime import datetime
 from typing import Optional
 
 import mlflow
@@ -25,8 +24,20 @@ from mcp.server.fastmcp import FastMCP
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
-CATALOG = os.getenv("RETAIL_CATALOG", "retail_prod")
+CATALOG = os.getenv("RETAIL_CATALOG")
+if not CATALOG:
+    raise RuntimeError("RETAIL_CATALOG env var is required (e.g. retail_prod). Refusing to default to prod.")
 WAREHOUSE_ID = os.getenv("DATABRICKS_WAREHOUSE_ID", "")
+
+# Risk heuristic thresholds (predict_return_risk)
+RISK_RETURN_HISTORY_THRESHOLD = 10      # percent
+RISK_RETURN_HISTORY_WEIGHT = 0.3
+RISK_NEW_CUSTOMER_ORDERS = 2            # order_count <= this
+RISK_NEW_CUSTOMER_WEIGHT = 0.2
+RISK_HIGH_VALUE_ORDER = 500             # GBP
+RISK_HIGH_VALUE_WEIGHT = 0.15
+RISK_LARGE_QUANTITY = 10                # items
+RISK_LARGE_QUANTITY_WEIGHT = 0.1
 
 # ─── Databricks Client (UC-secured) ───────────────────────────────────────────
 
@@ -35,10 +46,10 @@ def get_client() -> WorkspaceClient:
     return WorkspaceClient()
 
 def get_warehouse_id(w: WorkspaceClient) -> str:
-    """Resolve warehouse: explicit env var or first available."""
-    if WAREHOUSE_ID:
-        return WAREHOUSE_ID
-    return next(iter(w.warehouses.list())).id
+    """Resolve warehouse: explicit env var required."""
+    if not WAREHOUSE_ID:
+        raise RuntimeError("DATABRICKS_WAREHOUSE_ID env var is required. Set it to your SQL warehouse ID.")
+    return WAREHOUSE_ID
 
 def execute_query(w: WorkspaceClient, sql: str) -> pd.DataFrame:
     """Execute SQL via Statements API, return DataFrame."""
@@ -582,23 +593,23 @@ def predict_return_risk(
             factors = []
             
             # High return history
-            if customer.get('return_rate_pct', 0) > 10:
-                risk_score += 0.3
+            if customer.get('return_rate_pct', 0) > RISK_RETURN_HISTORY_THRESHOLD:
+                risk_score += RISK_RETURN_HISTORY_WEIGHT
                 factors.append(f"High return history ({customer['return_rate_pct']}%)")
             
             # New customer
-            if customer.get('order_count', 0) <= 2:
-                risk_score += 0.2
+            if customer.get('order_count', 0) <= RISK_NEW_CUSTOMER_ORDERS:
+                risk_score += RISK_NEW_CUSTOMER_WEIGHT
                 factors.append(f"New customer ({customer['order_count']} orders)")
             
             # High value order
-            if order_value and order_value > 500:
-                risk_score += 0.15
+            if order_value and order_value > RISK_HIGH_VALUE_ORDER:
+                risk_score += RISK_HIGH_VALUE_WEIGHT
                 factors.append(f"High value order (GBP {order_value})")
             
             # Large quantity
-            if quantity and quantity > 10:
-                risk_score += 0.1
+            if quantity and quantity > RISK_LARGE_QUANTITY:
+                risk_score += RISK_LARGE_QUANTITY_WEIGHT
                 factors.append(f"Large quantity ({quantity} items)")
             
             risk_score = min(risk_score, 1.0)

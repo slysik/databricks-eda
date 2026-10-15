@@ -1,5 +1,12 @@
 # Databricks Asset Bundle: EDA Retail Lakehouse Blueprint
 # Deploys notebooks, Genie agent, and a scheduled pipeline job
+#
+# KNOWN ISSUES (from code audit):
+# - SDP pipeline (retail_sdp) writes to {catalog}.bronze_sdp/silver_sdp/gold_sdp
+#   which nothing reads. Notebook job writes to {catalog}.bronze/silver/gold.
+#   Pick one path for production; the other is a demo/learning artifact.
+# - Same warehouse_id used for dev and prod targets (no isolation).
+# - SDP schema: "bronze" is dead config — transformations fully-qualify their targets.
 
 bundle:
   name: eda-retail-lakehouse
