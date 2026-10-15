@@ -47,23 +47,20 @@ just dab              # Full cycle: validate, deploy, run
 
 ![EDA Retail Lakehouse architecture](assets/architecture-light.svg)
 
-*Dark variant: [`assets/architecture-dark.svg`](assets/architecture-dark.svg). Detailed Mermaid: [`assets/architecture_diagram.md`](assets/architecture_diagram.md).*
-
 ---
 
-## Deterministic vs. Probabilistic
+## High Level: Medallion to Genie
 
-| Capability | Type | Mechanism | Confidence |
-|:---|:---:|:---|:---:|
-| Bronze ingestion & deduplication | **Deterministic** | Window function + idempotent overwrite | Exact |
-| Line categorization (6 classes) | **Deterministic** | Rule-based classification (prefixes, stock codes, quantity sign) | Exact |
-| Data quality constraints | **Deterministic** | Delta `CHECK` constraints (`price >= 0`, `invoice_date IS NOT NULL`) | Exact |
-| Metric calculation (KPIs, RFM) | **Deterministic** | SQL / DataFrame aggregation with dual-engine parity validation | Exact (0.00 diff) |
-| Customer identity stitching | **Deterministic** | SHA-256 hash of invoice + country + date for guest resolution | Exact per rule |
-| Column masking & row filtering | **Deterministic** | UC dynamic masking + row filters via `IS_ACCOUNT_GROUP_MEMBER()` | Exact |
-| Return propensity model (RF) | **Probabilistic (trained, not served)** | MLflow Random Forest classifier, 0.8899 ROC-AUC, registered in UC but not wired into MCP tool | 89% AUC |
-| Genie NL interpretation | **Probabilistic** | Databricks Genie (LLM + governed SQL) | Model-dependent |
-| MCP `predict_return_risk` | **Deterministic (today)** | Rule-based heuristic (return history, order value, quantity). RF model trained but not wired in. | Advisory |
+| Layer | Notebook | What It Does |
+|:---|:---|:---|
+| **Source** | UC table | `retail_source.online_retail.transactions_raw` (1.07M rows) |
+| **Bronze** | `01_bronze_ingest.py` | Dedup on 7-column key, idempotent overwrite. Removes 22,523 overlap rows. |
+| **Silver** | `02_silver_clean.py` | 6-class line categorization, CHECK constraints, quarantine, guest identity stitching. |
+| **Gold** | `03_gold_aggregate.py` | Daily KPIs + customer RFM/LTV features. Pre-aggregated for sub-second queries. |
+| **Governance** | `04_governance.py` | UC column mask (customer_id), row filter (UK-only). Genie inherits automatically. |
+| **Metric Views** | `src/metrics/*.sql` | 3 governed views with MEASURE() syntax. Single source of truth for KPIs. |
+| **Genie** | `05_genie_agent.py` | Agent config as code: tables, instructions, example SQL. Asks questions in plain English. |
+| **ML Model** | Notebook (not served) | Random Forest return propensity, 0.8899 ROC-AUC. Registered in UC, not wired into MCP. |
 
 ---
 
@@ -141,5 +138,5 @@ Deployed via `just dab-deploy`. Emails `lysiak043@gmail.com` on failure.
 1. **Business context:** UK online gift retailer, 1.07M transactions (Dec 2009 - Dec 2011). Separate real growth from data traps, build trusted metrics, enable governed self-service.
 2. **Architecture:** Medallion (Bronze -> Silver -> Gold) with UC governance, MLflow model training (registered but not served), Genie NL analytics. See diagram above.
 3. **Key insight:** Dual-engine parity (PySpark + Spark SQL) with zero-tolerance assertions. Every headline metric independently verified.
-4. **Deterministic vs. probabilistic:** Ingestion, quality, metrics, governance = deterministic. ML model and Genie = probabilistic. MCP risk score = rule-based today.
+4. **Medallion to Genie:** Each layer has a clear job. Ingestion, quality, metrics, governance are deterministic SQL. ML model is trained but not served. Genie makes it conversational.
 5. **Production readiness:** See [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) for honest gap analysis.
