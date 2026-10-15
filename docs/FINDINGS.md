@@ -1,6 +1,6 @@
 # EDA Findings
 
-The business story behind the build. Figures are from the analysis notebook run (Online Retail II, 1.07M line items, Dec 2009 to Dec 2011). That notebook is not committed to this repo, so the figures below cannot be re-derived from the code here; see [KNOWN_GAPS.md](KNOWN_GAPS.md) item 1.
+The business story behind the build. Figures are from the analysis notebook run (Online Retail II, 1.07M line items, Dec 2009 to Dec 2011). That notebook is not committed to this repo, so the figures below cannot be re-derived from the code here.
 
 ## Headline
 

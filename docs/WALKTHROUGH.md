@@ -1,6 +1,6 @@
 # 10-Minute Walkthrough
 
-A talk track, in the order I would say it. Each step names the file to have open. Every claim here is checked against the code; where the code falls short, that is said out loud ([KNOWN_GAPS.md](KNOWN_GAPS.md)).
+A talk track, in the order I would say it. Each step names the file to have open. Every claim here is checked against the code; where the code falls short, that is said out loud.
 
 ## 1. The problem (1 min)
 Two yearly sheets overlap by 22,523 rows and carry postage, bank charges and cancellations. Naive stacking overstates revenue by about GBP 377k. The goal is numbers a finance lead can sign off, queryable by non-engineers without loosening governance.

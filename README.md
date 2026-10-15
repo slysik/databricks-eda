@@ -7,7 +7,7 @@ Raw retail transactions in, trusted Gold tables out, three ways to ask questions
   <img src="assets/architecture-light.svg" alt="Architecture: a Unity Catalog source table flows into Lakeflow, which builds Bronze, Silver and Gold layers, then into Gold tables that Genie and an MCP server read. A dashed MLflow model card is trained in a notebook and not yet served. A governance panel lists Unity Catalog access controls, Delta quality checks and dual-engine parity." width="100%">
 </picture>
 
-*Solid boxes are in this repo. Dashed boxes exist only in the analysis notebook, which is not committed ([gap 1](docs/KNOWN_GAPS.md)). Diagram source: [`design/tokens.json`](design/tokens.json) and [`scripts/render_architecture.py`](scripts/render_architecture.py).*
+*Solid boxes are in this repo. Dashed boxes exist only in the analysis notebook, which is not committed. Diagram source: [`design/tokens.json`](design/tokens.json) and [`scripts/render_architecture.py`](scripts/render_architecture.py).*
 
 **Live Genie agent:** [EDA Governed Gold Analytics](https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1beaa006c1e47ab3758b127b2442d?o=7474656067656578) (workspace access required) · definition in [`genie/space_config.json`](genie/space_config.json).
 
@@ -39,7 +39,7 @@ Rule: anything that ends up in a report is deterministic. A model only chooses w
 | KPIs, RFM scores | Deterministic | SQL aggregation |
 | Mask, row filter | Deterministic | `IS_ACCOUNT_GROUP_MEMBER('admins')` |
 | MCP tools 1 to 5 | Deterministic | Parameterised SQL over Gold |
-| MCP `predict_return_risk` | Deterministic | Fixed weights on RFM signals (not the model; [gap 2](docs/KNOWN_GAPS.md)) |
+| MCP `predict_return_risk` | Deterministic | Fixed weights on RFM signals (not the model) |
 | Genie question to SQL | **Model judgment** | An LLM writes the SQL. Contained by two curated Gold tables, written instructions, sample questions, UC governance, and the SQL shown beside each answer |
 | Return-propensity model | **Model judgment** | Random forest, ROC-AUC 0.8899 as reported in the notebook. Advisory, not served |
 
@@ -50,10 +50,10 @@ Rule: anything that ends up in a report is deterministic. A model only chooses w
 | Medallion layers ([ADR-001](docs/adr/ADR-001-medallion-architecture.md)) | Reprocess any layer alone; each consumer reads the right shape | Three tables per concept to run and monitor |
 | Quarantine, do not fail | Postage and bank-charge lines are expected, not errors; kept for audit | Quarantine growth needs watching |
 | Overwrite, not incremental | Simple and idempotent for a static 2-year dataset | Does not scale to a live feed; I would move to streaming tables or MERGE |
-| Notebooks and a declarative pipeline | Shows both; the pipeline reports dropped-row counts | Rules are written twice ([gap 12](docs/KNOWN_GAPS.md)) |
+| Notebooks and a declarative pipeline | Shows both; the pipeline reports dropped-row counts | Rules are written twice, in the notebook and the pipeline |
 | Genie over Gold only | Smaller search space, governed by default | Cannot answer line-level questions |
 | Purpose-built MCP tools, not SQL passthrough ([ADR-006](docs/adr/ADR-006-purpose-built-mcp-server.md)) | Agents get questions the business asks; no arbitrary SQL | Each new question needs a new tool |
-| UC mask and row filter ([ADR-003](docs/adr/ADR-003-unity-catalog-governance.md)) | One policy, enforced for every client | Holes found: [gaps 4 to 6](docs/KNOWN_GAPS.md) |
+| UC mask and row filter ([ADR-003](docs/adr/ADR-003-unity-catalog-governance.md)) | One policy, enforced for every client | Holes: `resolved_customer_id` is unmasked, and the row filter is not on a table Genie reads |
 
 ## How I'd know it is healthy
 
@@ -73,7 +73,7 @@ Rule: anything that ends up in a report is deterministic. A model only chooses w
 
 ## Known gaps
 
-Found by reading the code against these docs; full list with line references in [`docs/KNOWN_GAPS.md`](docs/KNOWN_GAPS.md). The three that matter most:
+Found by reading the code against these docs. The three that matter most:
 1. The model-training and parity code are in a notebook that is not committed, so ROC-AUC 0.8899 and "diff = 0.00" cannot be reproduced from here.
 2. `return_rate_pct` is always 0 (the Gold filter removes the negative rows it sums).
 3. The `customer_id` mask is bypassed by `resolved_customer_id`, and the row filter sits on a table Genie does not read.
