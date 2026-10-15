@@ -1,5 +1,7 @@
 # System Architecture — Annotated Diagram
 
+Layer colours follow the medallion tokens in [`design/tokens.json`](../design/tokens.json): Bronze copper, Silver slate, Gold yellow, Serving blue.
+
 This document provides a detailed, annotated view of the EDA Retail Lakehouse architecture. For a quick overview, see the diagram in the main [README](../README.md).
 
 ---
@@ -81,12 +83,12 @@ flowchart TB
     X3 -.->|"ensures"| B2
     X4 -.->|"isolates"| S3B
 
-    style L0 fill:#f0f4ff,stroke:#4a6fa5
-    style L1 fill:#fff8e1,stroke:#f9a825
-    style L2 fill:#e8f5e9,stroke:#43a047
-    style L3 fill:#fce4ec,stroke:#e53935
-    style L4 fill:#f3e5f5,stroke:#8e24aa
-    style L5 fill:#e0f7fa,stroke:#00acc1
+    style L0 fill:#f1f5f9,stroke:#64748b
+    style L1 fill:#f6e6d8,stroke:#9a5b2e
+    style L2 fill:#e8ecf1,stroke:#6b7a8d
+    style L3 fill:#fbf0c8,stroke:#a87b00
+    style L4 fill:#f8fafc,stroke:#1e3a5f
+    style L5 fill:#dbeafe,stroke:#2563eb
     style XC fill:#fff3e0,stroke:#ef6c00
 ```
 

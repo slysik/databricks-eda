@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 520" width="1320" height="520" role="img" aria-labelledby="t d"><title id="t">EDA Retail Lakehouse architecture</title><desc id="d">Source table flows through Bronze deduplication into Silver cleaned, stitched and quarantine tables, then Gold daily KPIs and customer features, then Genie, MCP server and MLflow model. Cross-cutting controls: Delta CHECK constraints, dual-engine parity, Unity Catalog masks and row filters.</desc>
+<style>text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif} .m{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace} .lbl{font-size:11px;font-weight:700;letter-spacing:2px} .nm{font-size:13px;font-weight:700;fill:#f5f5f5} .sb{font-size:12.5px;fill:#b0b0b8} .ctl{font-size:12.5px;fill:#f5f5f5}</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b0b0b8"/></marker></defs>
+<rect width="1320" height="520" rx="14" fill="#1b1b1b"/>
+<rect x="30" y="58" width="220" height="334" rx="14" fill="#2d2d2d" stroke="#b0b0b8" stroke-width="1.5"/>
+<text x="40" y="84" class="lbl" fill="#f5f5f5">SOURCE</text>
+<rect x="290" y="58" width="220" height="334" rx="14" fill="#3a2718" stroke="#d08a52" stroke-width="1.5"/>
+<text x="300" y="84" class="lbl" fill="#f0cdb0">BRONZE</text>
+<rect x="550" y="58" width="220" height="334" rx="14" fill="#2a2f38" stroke="#9aa6b6" stroke-width="1.5"/>
+<text x="560" y="84" class="lbl" fill="#dde3ea">SILVER</text>
+<rect x="810" y="58" width="220" height="234" rx="14" fill="#3b2f0a" stroke="#e0b030" stroke-width="1.5"/>
+<text x="820" y="84" class="lbl" fill="#f6e2a0">GOLD</text>
+<rect x="1070" y="58" width="220" height="334" rx="14" fill="#14284a" stroke="#6ea0ff" stroke-width="1.5"/>
+<text x="1080" y="84" class="lbl" fill="#cfe0ff">SERVING</text>
+<rect x="40" y="204" width="200" height="64" rx="6" fill="#1e1e24" stroke="#b0b0b8" stroke-width="1.25"/>
+<text x="54" y="231" class="nm m">transactions_raw</text>
+<text x="54" y="251" class="sb">retail_source · 1.07M rows</text>
+<rect x="300" y="204" width="200" height="64" rx="6" fill="#1e1e24" stroke="#d08a52" stroke-width="1.25"/>
+<text x="314" y="231" class="nm m">transactions_raw</text>
+<text x="314" y="251" class="sb">dedup · 22,523 rows dropped</text>
+<rect x="560" y="104" width="200" height="64" rx="6" fill="#1e1e24" stroke="#9aa6b6" stroke-width="1.25"/>
+<text x="574" y="131" class="nm m">sales_cleaned</text>
+<text x="574" y="151" class="sb">typed · sale + cancellation</text>
+<rect x="560" y="204" width="200" height="64" rx="6" fill="#1e1e24" stroke="#9aa6b6" stroke-width="1.25"/>
+<text x="574" y="231" class="nm m">sales_stitched</text>
+<text x="574" y="251" class="sb">guest checkouts resolved</text>
+<rect x="560" y="304" width="200" height="64" rx="6" fill="#1e1e24" stroke="#9aa6b6" stroke-width="1.25"/>
+<text x="574" y="331" class="nm m">sales_quarantine</text>
+<text x="574" y="351" class="sb">non-product lines · audit only</text>
+<rect x="820" y="104" width="200" height="64" rx="6" fill="#1e1e24" stroke="#e0b030" stroke-width="1.25"/>
+<text x="834" y="131" class="nm m">gold_daily_kpis</text>
+<text x="834" y="151" class="sb">revenue · orders · AOV</text>
+<rect x="820" y="204" width="200" height="64" rx="6" fill="#1e1e24" stroke="#e0b030" stroke-width="1.25"/>
+<text x="834" y="231" class="nm m">gold_customer_features</text>
+<text x="834" y="251" class="sb">RFM · LTV · return rate</text>
+<rect x="1080" y="104" width="200" height="64" rx="6" fill="#1e1e24" stroke="#6ea0ff" stroke-width="1.25"/>
+<text x="1094" y="131" class="nm m">Genie agent</text>
+<text x="1094" y="151" class="sb">plain English → SQL → charts</text>
+<rect x="1080" y="204" width="200" height="64" rx="6" fill="#1e1e24" stroke="#6ea0ff" stroke-width="1.25"/>
+<text x="1094" y="231" class="nm m">MCP server</text>
+<text x="1094" y="251" class="sb">6 business-shaped tools</text>
+<rect x="1080" y="304" width="200" height="64" rx="6" fill="#1e1e24" stroke="#6ea0ff" stroke-width="1.25"/>
+<text x="1094" y="331" class="nm m">MLflow model</text>
+<text x="1094" y="351" class="sb">return risk · ROC-AUC 0.89</text>
+<path d="M240 236 H300" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M500 236 H530 V136 H560" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M530 236 V336 H560" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M660 168 V204" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M760 136 H820" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M760 236 H820" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<path d="M1030 175 H1070" fill="none" stroke="#b0b0b8" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="30" y="424" width="1260" height="64" rx="14" fill="none" stroke="#cfe0ff" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="50" y="448" class="lbl" fill="#cfe0ff">CROSS-CUTTING CONTROLS</text>
+<circle cx="54" cy="468" r="3.5" fill="#00d4aa"/><text x="66" y="472" class="ctl">Delta CHECK constraints on Silver; bad rows quarantined</text>
+<circle cx="484" cy="468" r="3.5" fill="#00d4aa"/><text x="496" y="472" class="ctl">Dual-engine parity: PySpark = Spark SQL, diff 0.00</text>
+<circle cx="864" cy="468" r="3.5" fill="#00d4aa"/><text x="876" y="472" class="ctl">Unity Catalog: customer_id mask, UK row filter</text>
+</svg>

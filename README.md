@@ -17,61 +17,12 @@ The design deliberately separates deterministic controls—ingestion, deduplicat
 
 ## System Architecture
 
-```mermaid
-flowchart LR
-    subgraph src["Source"]
-        SRC[("retail_source<br/>.online_retail<br/>.transactions_raw")]
-    end
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+  <img src="assets/architecture-light.svg" alt="Architecture: a source table flows through Bronze dedup into Silver cleaned, stitched and quarantine tables, then Gold daily KPIs and customer features, then Genie, the MCP server and the MLflow model. Delta CHECK constraints, dual-engine parity and Unity Catalog masks and row filters apply across layers." width="100%">
+</picture>
 
-    subgraph bronze["Bronze"]
-        B[("transactions_raw<br/>deduplicated")]
-    end
-
-    subgraph silver["Silver"]
-        S1[("sales_cleaned")]
-        S2[("sales_quarantine")]
-        S3[("sales_stitched")]
-    end
-
-    subgraph gold["Gold"]
-        G1[("gold_daily_kpis")]
-        G2[("gold_customer_features")]
-    end
-
-    subgraph serve["Serving"]
-        GENIE["Genie Agent"]
-        MCP["MCP Server"]
-        ML["MLflow Model"]
-    end
-
-    subgraph gov["Governance"]
-        MASK["Column Mask"]
-        RLS["Row Filter"]
-    end
-
-    SRC -->|"dedup + ingest"| B
-    B -->|"classify + clean"| S1
-    B -->|"quarantine"| S2
-    S1 -->|"stitch identities"| S3
-    S3 -->|"daily KPIs"| G1
-    S3 -->|"RFM + LTV"| G2
-    G1 --> GENIE
-    G2 --> GENIE
-    G1 --> MCP
-    G2 --> MCP
-    G2 --> ML
-    MASK -.->|"customer_id"| G2
-    RLS -.->|"UK-only"| S3
-
-    style src fill:#1a1a2e,stroke:#16213e,color:#e0e0e0
-    style bronze fill:#1a1a2e,stroke:#e2b714,color:#e0e0e0
-    style silver fill:#1a1a2e,stroke:#4ecca3,color:#e0e0e0
-    style gold fill:#1a1a2e,stroke:#e94560,color:#e0e0e0
-    style serve fill:#1a1a2e,stroke:#0f3460,color:#e0e0e0
-    style gov fill:#1a1a2e,stroke:#533483,color:#e0e0e0
-```
-
-*Mermaid renders natively on GitHub. For a detailed annotated version with cross-cutting controls, see [`assets/architecture_diagram.md`](assets/architecture_diagram.md).*
+*Generated from [`design/tokens.json`](design/tokens.json) by [`scripts/render_architecture.py`](scripts/render_architecture.py). Per-table lineage, the dual-engine parity flow and the SDP variant are in [`assets/architecture_diagram.md`](assets/architecture_diagram.md); colours and type rules are in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).*
 
 ---
 
@@ -155,6 +106,7 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 | **`PRODUCTION_READINESS.md`** | **Production Readiness Assessment:** Gap analysis of implemented vs. required capabilities for real production launch. |
 | **`OPERATIONS.md`** | **Operations Runbook:** Health signals, monitoring, alerting, incident response, and ownership. |
 | **`DEPLOYMENT.md`** | **Deployment Guide:** Tested commands for DAB deployment, validation, and rollback. |
+| **`design/tokens.json`**, **`docs/DESIGN_SYSTEM.md`** | **Design system:** colour, type, spacing and diagram rules; the architecture SVGs are rendered from these tokens. |
 | **`docs/adr/`** | **Architecture Decision Records:** Rationale for major technical choices (Medallion, dual-engine, UC governance, etc.). |
 | **`src/01_bronze_ingest.py`** | **Bronze Ingestion:** Window-based dedup from UC source table, idempotent overwrite. |
 | **`src/02_silver_clean.py`** | **Silver Cleaning:** 6-class line categorization, Delta CHECK constraints, quarantine, identity stitching. |
@@ -166,10 +118,10 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 | **`genie/space_config.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (used by `deploy_genie.py`). |
 | **`genie/ask_genie.py`** | **Genie CLI:** Ask the live Genie One Agent a plain-English question from the terminal. |
 | **`genie/deploy_genie.py`** | **Genie Deploy:** Create or update the Genie Space definition via the Databricks SDK. |
-| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Interactive Jupyter Notebook:** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
-| **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
-| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
-| **`eda_online_retail_ii_sql.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | *(not in this repo)* **Interactive Jupyter Notebook:** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
+| **`eda_online_retail_ii_presentation.html`** | *(generated, gitignored; run `just build`)* **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
+| **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | *(gitignored; export from Databricks)* **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
+| **`eda_online_retail_ii_sql.py`** | *(not in this repo)* **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
 | **`demo/genie_agent_demo.mp4`** | **Genie Agent Demo Video:** 36-second captioned walkthrough of the agent answering questions with charts and SQL. |
 | **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables (used in presentation build). |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
@@ -224,6 +176,7 @@ uv run --with markdown python build_presentation.py "eda-online-retail-gold-V1-2
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Step-by-step deployment commands, validation, and rollback procedures |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records for key technical choices |
 | [`assets/architecture_diagram.md`](assets/architecture_diagram.md) | Full annotated Mermaid architecture diagram |
+| [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Colour, type and diagram rules; how to regenerate the architecture SVGs |
 
 ---
 

@@ -167,10 +167,17 @@ else
     log_fail "No Mermaid diagrams in architecture_diagram.md"
 fi
 
-if grep -q '```mermaid' README.md 2>/dev/null; then
-    log_pass "Mermaid diagrams found in README.md"
+if grep -q 'assets/architecture-light.svg' README.md 2>/dev/null && [ -s assets/architecture-light.svg ] && [ -s assets/architecture-dark.svg ]; then
+    log_pass "README embeds the architecture SVGs"
 else
-    log_fail "No Mermaid diagrams in README.md"
+    log_fail "README missing assets/architecture-light.svg (or the SVGs are empty)"
+fi
+
+# SVGs are generated from design/tokens.json: fail if they are stale
+if python3 scripts/render_architecture.py >/dev/null 2>&1 && git diff --quiet -- assets/architecture-light.svg assets/architecture-dark.svg 2>/dev/null; then
+    log_pass "Architecture SVGs match design/tokens.json"
+else
+    log_warn "Architecture SVGs differ from a fresh render (run: python3 scripts/render_architecture.py)"
 fi
 
 # =============================================================================
