@@ -24,7 +24,8 @@ demo:
     @open demo/genie_agent_demo.mp4 || xdg-open demo/genie_agent_demo.mp4 2>/dev/null || echo "Open demo/genie_agent_demo.mp4"
 
 # Recompile presentation from a notebook run export (requires: just build <notebook.html>)
-build notebook_html="eda-online-retail-gold-V1-2026-10-02 17_48_41.html":
+build notebook_html="":
+    @if [ -z "{{notebook_html}}" ]; then echo "Usage: just build <notebook-export.html>"; exit 1; fi
     @uv run --with markdown python build_presentation.py "{{notebook_html}}" eda_online_retail_ii_presentation.html
     @echo "✅ Rebuilt eda_online_retail_ii_presentation.html"
 
@@ -41,7 +42,7 @@ deploy-genie profile="primary-aws-user":
     @uv run --with databricks-sdk python genie/deploy_genie.py --profile {{profile}}
 
 # Sync the Databricks Git folder to the latest commit on main
-sync profile="primary-aws-user" repo_id="2455351154855299":
+sync profile="primary-aws-user" repo_id="4146773228775435":
     @databricks -p {{profile}} repos update {{repo_id}} --branch main
     @echo "✅ Databricks Git folder synced to latest main"
 

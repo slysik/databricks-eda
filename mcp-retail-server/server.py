@@ -630,7 +630,7 @@ def predict_return_risk(
                         "High value order (>GBP 500)",
                         "Large quantity (>10 items)"
                     ],
-                    "model_info": "Return propensity model registered in MLflow (ROC-AUC 0.8899)"
+                    "model_info": "Rule-based heuristic. RF model (ROC-AUC 0.8899) trained in notebook, registered in UC, not wired into this tool."
                 }
             }
         

@@ -45,7 +45,7 @@ Tools are shaped to the actual business questions executives ask about retail pe
 | `compare_periods` | "Is this holiday better than last?" | YoY/MoM with significance testing |
 | `get_revenue_breakdown` | "Where is revenue coming from?" | By country, channel (guest vs identified), time |
 | `check_data_quality` | "Are there data issues I should know?" | Quarantine stats, constraint violations, gaps |
-| `predict_return_risk` | "Will this customer return their order?" | Uses registered MLflow model |
+| `predict_return_risk` | "Will this customer return their order?" | Rule-based heuristic (RF model trained but not wired in) |
 
 ## Why These Tools (Not Raw SQL)
 

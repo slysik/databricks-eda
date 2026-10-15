@@ -14,7 +14,7 @@ Left to right: one UC source table, Lakeflow builds Bronze, Silver, Gold, then a
 The same logic runs as a declarative pipeline (`src/pipelines/retail_sdp/`) where bad rows are dropped and counted instead of failing the task.
 
 ## 3. Deterministic vs model judgment (2 min)
-Show the table in the [README](../README.md#deterministic-vs-model-judgment). The principle: figures in a report are SQL. The model only picks the query (Genie) or gives an advisory score. Concrete examples to say: the `C` invoice prefix is a cancellation, always; the stock code `POST` is quarantined, always; Genie turns "revenue by country last quarter" into SQL, and the SQL is shown so a person can check it.
+Show the table in the [README](../README.md#deterministic-vs-probabilistic). The principle: figures in a report are SQL. The model only picks the query (Genie) or gives an advisory score. Concrete examples to say: the `C` invoice prefix is a cancellation, always; the stock code `POST` is quarantined, always; Genie turns "revenue by country last quarter" into SQL, and the SQL is shown so a person can check it.
 Be upfront on the risk score: the MCP tool uses fixed rules today. The random-forest model (ROC-AUC 0.8899, reported) was trained in the notebook and is not served.
 
 ## 4. Decisions and trade-offs (2 min)
