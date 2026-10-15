@@ -1,5 +1,7 @@
 # System Architecture — Annotated Diagram
 
+Layer colours follow the medallion tokens in [`design/tokens.json`](../design/tokens.json): Bronze copper, Silver slate, Gold yellow, Serving blue.
+
 This document provides a detailed, annotated view of the EDA Retail Lakehouse architecture. For a quick overview, see the diagram in the main [README](../README.md).
 
 ---
@@ -24,10 +26,10 @@ flowchart TB
     subgraph L2["Silver Layer — Cleaning & Classification"]
         direction TB
         S1["Type Casting<br/>(int, decimal(12,3),<br/>timestamp)"]
-        S2["6-Class Categorization"]
+        S2["5-Class Categorization"]
         S3A[("sales_cleaned<br/>sale + cancellation")]
         S3B[("sales_quarantine<br/>non_product, bad_debt,<br/>stock_adjustment")]
-        S4["Identity Stitching<br/>(SHA-256 guest resolution)"]
+        S4["Guest Surrogate ID<br/>(SHA-256 per guest invoice)"]
         S5[("sales_stitched<br/>+ resolved_customer_id")]
         B2 --> S1 --> S2
         S2 -->|"sale / cancellation"| S3A
@@ -45,7 +47,7 @@ flowchart TB
 
     subgraph L4["Governance — Unity Catalog"]
         direction TB
-        UC1["Column Mask<br/>customer_id → ***MASKED***<br/>(non-admin roles)"]
+        UC1["Column Mask<br/>customer_id → NULL<br/>(non-admin roles)"]
         UC2["Row Filter<br/>country = 'United Kingdom'<br/>(non-admin roles)"]
     end
 
@@ -81,12 +83,12 @@ flowchart TB
     X3 -.->|"ensures"| B2
     X4 -.->|"isolates"| S3B
 
-    style L0 fill:#f0f4ff,stroke:#4a6fa5
-    style L1 fill:#fff8e1,stroke:#f9a825
-    style L2 fill:#e8f5e9,stroke:#43a047
-    style L3 fill:#fce4ec,stroke:#e53935
-    style L4 fill:#f3e5f5,stroke:#8e24aa
-    style L5 fill:#e0f7fa,stroke:#00acc1
+    style L0 fill:#f1f5f9,stroke:#64748b
+    style L1 fill:#f6e6d8,stroke:#9a5b2e
+    style L2 fill:#e8ecf1,stroke:#6b7a8d
+    style L3 fill:#fbf0c8,stroke:#a87b00
+    style L4 fill:#f8fafc,stroke:#1e3a5f
+    style L5 fill:#dbeafe,stroke:#2563eb
     style XC fill:#fff3e0,stroke:#ef6c00
 ```
 
@@ -138,7 +140,7 @@ flowchart TB
     subgraph Pipeline["Spark Declarative Pipeline"]
         direction TB
         P1["01_bronze_transactions_raw<br/>@dp.materialized_view<br/>Dedup + write"]
-        P2["02_silver_classified<br/>@dp.temporary_view<br/>6-class categorization"]
+        P2["02_silver_classified<br/>@dp.temporary_view<br/>5-class categorization"]
         P3["03_silver_sales_cleaned<br/>@dp.materialized_view<br/>@dp.expect_or_drop (x2)"]
         P4["04_silver_sales_quarantine<br/>@dp.materialized_view"]
         P5["05_silver_sales_stitched<br/>@dp.materialized_view<br/>row_filter applied"]

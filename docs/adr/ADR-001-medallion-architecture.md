@@ -16,7 +16,7 @@ The project ingests 1.07M raw retail transaction line items from a Unity Catalog
 Adopt the **Medallion Architecture** with three layers:
 
 - **Bronze:** Raw ingestion with deduplication. Idempotent `overwrite` writes. Preserves source fidelity minus known duplicates.
-- **Silver:** Cleaned, classified, and quality-checked data. Six-class line categorization. Quarantine table for non-product lines. Customer identity stitching.
+- **Silver:** Cleaned, classified, and quality-checked data. Five-class line categorization. Quarantine table for non-product lines. Customer identity stitching.
 - **Gold:** Pre-aggregated business metrics (daily KPIs, customer RFM/LTV features). Optimized for sub-second BI and Genie response.
 
 ## Alternatives Considered

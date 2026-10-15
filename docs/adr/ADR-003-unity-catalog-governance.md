@@ -15,7 +15,7 @@ The dataset contains customer identifiers (`customer_id`) that constitute PII un
 
 Use **Unity Catalog dynamic data governance** with two mechanisms:
 
-1. **Dynamic Column Masking:** A `MASK()` user-defined function (`mask_customer_id`) replaces `customer_id` with `***MASKED***` for non-administrative roles. Applied at query time — no data transformation required.
+1. **Dynamic Column Masking:** A `MASK()` user-defined function (`mask_customer_id`) returns NULL for `customer_id` for non-administrative roles. Applied at query time — no data transformation required.
 
 2. **Row-Level Security:** A row filter function (`filter_uk_region`) restricts non-admin users to UK-only data on `sales_stitched`. Applied at query time via `IS_ACCOUNT_GROUP_MEMBER()`.
 
@@ -40,7 +40,7 @@ Both mechanisms are enforced at the Unity Catalog layer and are **automatically 
 
 ### Negative
 - **Performance overhead:** Mask/filter functions execute per query (minimal at this scale).
-- **Complexity in debugging:** Users may be confused by `***MASKED***` values (mitigated by documentation and Genie instructions).
+- **Complexity in debugging:** Users may be confused by NULL `customer_id` values (mitigated by documentation and Genie instructions).
 - **Account group dependency:** Masking relies on `IS_ACCOUNT_GROUP_MEMBER()` — group membership must be maintained correctly.
 
 ## Implementation Details
