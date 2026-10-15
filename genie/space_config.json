@@ -275,7 +275,7 @@
             {
               "column_name": "net_line_revenue",
               "description": [
-                "Line-item revenue: quantity \u00d7 price, in GBP. Negative for returns."
+                "Line-item revenue: quantity × price, in GBP. Negative for returns."
               ]
             },
             {
@@ -363,7 +363,7 @@
             {
               "column_name": "net_line_revenue",
               "description": [
-                "Line-item revenue: quantity \u00d7 price, in GBP. Negative for returns."
+                "Line-item revenue: quantity × price, in GBP. Negative for returns."
               ]
             },
             {
@@ -399,11 +399,19 @@
         {
           "id": "01f1be9f69a619a3bbcb927fe183fac0",
           "content": [
-            "##Table Usage Guide\n",
-            "- **gold_daily_kpis**: Pre-aggregated daily KPIs \u2014 revenue, orders, AOV, cancellation rate. Use for trend analysis, period comparisons, and top-N day queries.\n",
+            "## Table Usage Guide\n",
+            "- **gold_daily_kpis**: Pre-aggregated daily KPIs — revenue, orders, AOV, cancellation rate. Use for trend analysis, period comparisons, and top-N day queries.\n",
             "- **gold_customer_features**: One row per customer with lifetime metrics (orders, spend, units, recency). Use for customer segmentation, VIP identification, and churn analysis.\n",
             "- **sales_cleaned**: Line-item-level sales with quality flags (is_cancellation, line_type). Use for country breakdowns, product-level analysis, and custom aggregations.\n",
-            "- **sales_stitched**: Line-item sales with guest-checkout identity resolution (resolved_customer_id, is_guest_checkout). Use when analyzing guest vs. identified customer behavior. Subject to a UC row filter \u2014 non-global users see UK rows only.\n",
+            "- **sales_stitched**: Line-item sales with guest-checkout identity resolution (resolved_customer_id, is_guest_checkout). Use when analyzing guest vs. identified customer behavior. Subject to a UC row filter — non-global users see UK rows only.\n",
+            "\n",
+            "## Metric Views (Governed Metrics)\n",
+            "The following metric views provide governed, pre-defined business metrics. Prefer these over raw table queries when available:\n",
+            "- **retail_prod.metrics.daily_kpis**: Use `MEASURE(\\`Net Revenue\\`)`, `MEASURE(\\`Gross Revenue\\`)`, `MEASURE(\\`Total Orders\\`)`, etc. for revenue and order metrics. Dimensions: `Invoice Date`, `Invoice Month`, `Invoice Quarter`, `Invoice Year`.\n",
+            "- **retail_prod.metrics.sales_by_country**: Use `MEASURE(\\`Revenue\\`)`, `MEASURE(\\`Order Count\\`)`, `MEASURE(\\`Units Sold\\`)` for country/product analysis. Dimensions: `Country`, `Sale Month`, `Stock Code`, `Product Description`.\n",
+            "- **retail_prod.metrics.customer_features**: Use `MEASURE(\\`Customer Count\\`)`, `MEASURE(\\`Avg Spend\\`)`, etc. for customer segmentation. Dimensions: `Value Segment`, `Recency Segment`, `Is Guest Checkout`.\n",
+            "\n",
+            "**When answering questions, always mention which metric view or table you used.** For example: 'Using the governed daily_kpis metric view, net revenue in Q4 2010 was...' or 'Querying the sales_by_country metric view for country-level data...'\n",
             "\n",
             "## Key Business Terms\n",
             "- **VIP customer**: A customer with lifetime_orders > 5.\n",
@@ -414,9 +422,9 @@
             "\n",
             "## Important Notes\n",
             "- All monetary values are in GBP.\n",
-            "- Data covers Dec 2009 through Dec 9, 2011. Dec 2011 is truncated (ends Dec 9) \u2014 do not compare Dec 2011 to full Dec 2010 without adjusting for this.\n",
-            "- **customer_id type & masking**: gold_customer_features.customer_id is a STRING column with UC column masking applied. sales_stitched.resolved_customer_id (STRING) is the correct join key for customer-level analysis. sales_cleaned.customer_id is an INT without identity resolution \u2014 prefer sales_stitched for customer join paths.\n",
-            "- When joining gold_customer_features to sales_stitched, use: gold_customer_features.customer_id = sales_stitched.resolved_customer_id."
+            "- Data covers Dec 2009 through Dec 9, 2011. Dec 2011 is truncated (ends Dec 9) — do not compare Dec 2011 to full Dec 2010 without adjusting for this.\n",
+            "- **customer_id type & masking**: gold_customer_features.customer_id is a STRING column with UC column masking applied. sales_stitched.resolved_customer_id (STRING) is the correct join key for customer-level analysis. sales_cleaned.customer_id is an INT without identity resolution — prefer sales_stitched for customer join paths.\n",
+            "- When joining gold_customer_features to sales_stitched, use: gold_customer_features.customer_id = sales_stitched.resolved_customer_id.\n"
           ]
         }
       ],
@@ -464,6 +472,42 @@
           ],
           "sql": [
             "SELECT invoice_date, net_revenue, total_orders, cancellation_rate_pct FROM retail_prod.gold.gold_daily_kpis WHERE invoice_date >= '2010-10-01' AND invoice_date < '2011-01-01' ORDER BY net_revenue DESC LIMIT 5"
+          ]
+        },
+        {
+          "id": "92417f343068450b9641e1d7d86018e9",
+          "question": [
+            "What were the top 5 revenue days in Q4 2010 using metric views?"
+          ],
+          "sql": [
+            "SELECT `Invoice Date`, MEASURE(`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis WHERE `Invoice Date` >= '2010-10-01' AND `Invoice Date` < '2011-01-01' GROUP BY `Invoice Date` ORDER BY net_revenue DESC LIMIT 5"
+          ]
+        },
+        {
+          "id": "86728eb8faf647cb96200b705b6efe32",
+          "question": [
+            "Show monthly revenue trend from metric view"
+          ],
+          "sql": [
+            "SELECT `Invoice Month`, MEASURE(`Gross Revenue`) AS gross_revenue, MEASURE(`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis GROUP BY `Invoice Month` ORDER BY `Invoice Month`"
+          ]
+        },
+        {
+          "id": "702a9a3bab0947f4bdb99c8ca49ed5db",
+          "question": [
+            "What are the top 10 countries by revenue?"
+          ],
+          "sql": [
+            "SELECT `Country`, MEASURE(`Revenue`) AS revenue, MEASURE(`Order Count`) AS orders FROM retail_prod.metrics.sales_by_country GROUP BY `Country` ORDER BY revenue DESC LIMIT 10"
+          ]
+        },
+        {
+          "id": "541c311e52dc4ff38cc7e16e699dc45b",
+          "question": [
+            "Customer segmentation breakdown"
+          ],
+          "sql": [
+            "SELECT `Value Segment`, MEASURE(`Customer Count`) AS customers, MEASURE(`Avg Spend`) AS avg_spend FROM retail_prod.metrics.customer_features GROUP BY `Value Segment` ORDER BY customers DESC"
           ]
         }
       ],
