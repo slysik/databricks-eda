@@ -15,16 +15,16 @@ resources:
       query_text: |
         SELECT
           CASE
-            WHEN MAX(completed_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS THEN 1
+            WHEN MAX(period_end_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS THEN 1
             ELSE 0
           END AS pipeline_healthy
         FROM system.lakeflow.job_run_timeline
         WHERE job_id = (
           SELECT job_id FROM system.lakeflow.jobs
-          WHERE job_name = 'EDA Retail Lakehouse Pipeline'
+          WHERE name = 'EDA Retail Lakehouse Pipeline'
           LIMIT 1
         )
-        AND completed_time >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
+        AND period_end_time >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
       warehouse_id: ${var.warehouse_id}
       evaluation:
         comparison_operator: 'EQUAL'
@@ -37,7 +37,7 @@ resources:
         notification:
           notify_on_ok: false
           subscriptions:
-            - user_email: "${workspace.current_user.userName}"
+            - user_email: "lysiak043@gmail.com"
       schedule:
         pause_status: 'UNPAUSED'
         quartz_cron_schedule: '0 0 9 * * ?'
@@ -70,7 +70,7 @@ resources:
         notification:
           notify_on_ok: false
           subscriptions:
-            - user_email: "${workspace.current_user.userName}"
+            - user_email: "lysiak043@gmail.com"
       schedule:
         pause_status: 'UNPAUSED'
         quartz_cron_schedule: '0 0 9 * * ?'
@@ -103,7 +103,7 @@ resources:
         notification:
           notify_on_ok: false
           subscriptions:
-            - user_email: "${workspace.current_user.userName}"
+            - user_email: "lysiak043@gmail.com"
       schedule:
         pause_status: 'UNPAUSED'
         quartz_cron_schedule: '0 0 9 * * ?'
@@ -133,7 +133,7 @@ resources:
         notification:
           notify_on_ok: false
           subscriptions:
-            - user_email: "${workspace.current_user.userName}"
+            - user_email: "lysiak043@gmail.com"
       schedule:
         pause_status: 'UNPAUSED'
         quartz_cron_schedule: '0 0 9 * * ?'
@@ -171,7 +171,7 @@ resources:
         notification:
           notify_on_ok: false
           subscriptions:
-            - user_email: "${workspace.current_user.userName}"
+            - user_email: "lysiak043@gmail.com"
       schedule:
         pause_status: 'UNPAUSED'
         quartz_cron_schedule: '0 0 9 * * ?'
@@ -195,15 +195,6 @@ resources:
           notebook_task:
             notebook_path: ../src/monitoring/01_health_checks.py
             source: WORKSPACE
-          new_cluster:
-            spark_version: "15.4.x-scala2.12"
-            node_type_id: "i3.xlarge"
-            num_workers: 1
-            spark_conf:
-              "spark.databricks.cluster.profile": "singleNode"
-              "spark.master": "local[*]"
-            custom_tags:
-              "ResourceClass": "SingleNode"
       schedule:
         quartz_cron_expression: "0 0 8 * * ?"
         timezone_id: "America/New_York"

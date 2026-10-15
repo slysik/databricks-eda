@@ -18,18 +18,18 @@ catalog = dbutils.widgets.get("catalog")
 pipeline_status = spark.sql("""
 SELECT
     CASE
-        WHEN MAX(completed_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS THEN 'HEALTHY'
+        WHEN MAX(period_end_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS THEN 'HEALTHY'
         ELSE 'STALE'
     END AS pipeline_status,
-    MAX(completed_time) AS last_run_time,
+    MAX(period_end_time) AS last_run_time,
     COUNT(*) AS runs_last_24h
 FROM system.lakeflow.job_run_timeline
 WHERE job_id = (
     SELECT job_id FROM system.lakeflow.jobs
-    WHERE job_name = 'EDA Retail Lakehouse Pipeline'
+    WHERE name = 'EDA Retail Lakehouse Pipeline'
     LIMIT 1
 )
-AND completed_time >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
+AND period_end_time >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
 """)
 display(pipeline_status)
 

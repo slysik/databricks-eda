@@ -27,11 +27,11 @@ run_query() {
 echo "=== Pipeline Health ==="
 run_query "Last pipeline run" "
 SELECT
-  CASE WHEN MAX(completed_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
+  CASE WHEN MAX(period_end_time) >= CURRENT_TIMESTAMP() - INTERVAL 24 HOURS
     THEN 'HEALTHY' ELSE 'STALE' END AS status,
-  MAX(completed_time) AS last_run
+  MAX(period_end_time) AS last_run
 FROM system.lakeflow.job_run_timeline
-WHERE job_id = (SELECT job_id FROM system.lakeflow.jobs WHERE job_name = 'EDA Retail Lakehouse Pipeline' LIMIT 1)
+WHERE job_id = (SELECT job_id FROM system.lakeflow.jobs WHERE name = 'EDA Retail Lakehouse Pipeline' LIMIT 1)
 "
 
 # 2. Data Freshness
