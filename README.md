@@ -37,7 +37,7 @@ just dab              # Full cycle: validate, deploy, run
 
 ## Demo: Genie Agent (36 s)
 
-[![Watch the Genie Agent demo](demo/genie_agent_thumbnail.jpg)](demo/genie_agent_demo.mp4)
+[![Watch the Genie Agent demo](demo/genie_agent_thumbnail.jpg)](https://github.com/slysik/databricks-eda/raw/main/demo/genie_agent_demo.mp4)
 
 *Click the image to watch. The EDA Governed Analytics Genie agent answers business questions with charts and SQL, from governed Unity Catalog tables.*
 
