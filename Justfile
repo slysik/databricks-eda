@@ -7,6 +7,33 @@ default:
 # Local (no Databricks connection needed)
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Install full demo: validate, deploy pipeline, metric views, Genie, alerts
+install profile="primary-aws-user" target="dev":
+    @echo "=== Installing EDA Demo ==="
+    @echo ""
+    @echo "1/5 Validating..."
+    @just validate
+    @echo ""
+    @echo "2/5 Deploying pipeline + alerts (DAB)..."
+    @just dab-deploy {{target}}
+    @echo ""
+    @echo "3/5 Deploying metric views..."
+    @just metric-views {{profile}}
+    @echo ""
+    @echo "4/5 Deploying Genie agent..."
+    @just deploy-genie {{profile}}
+    @echo ""
+    @echo "5/5 Running pipeline..."
+    @just dab-run {{target}}
+    @echo ""
+    @echo "=== Demo Installed ==="
+    @echo ""
+    @echo "Next steps:"
+    @echo "  just health        # Check everything is healthy"
+    @echo "  just ask "..."      # Ask Genie a question"
+    @echo "  just preview       # Open presentation"
+    @echo "  just demo          # Play demo video"
+
 # Validate everything: Python syntax, JSON, YAML, docs, DAB config
 validate:
     @bash scripts/validate.sh

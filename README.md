@@ -16,6 +16,7 @@ This is a production-oriented Databricks lakehouse reference implementation for 
 
 ```bash
 just                  # Show all commands
+just install          # Install full demo (pipeline + metric views + Genie + alerts)
 just validate         # Python + JSON + YAML + docs + DAB
 just health           # Run health checks against workspace
 just ask "..."        # Ask Genie a question
@@ -24,7 +25,7 @@ just dab              # Full cycle: validate, deploy, run
 
 | Command | What it does |
 |:---|:---|
-| `just validate` | Validate Python syntax, JSON, YAML, docs, DAB config |
+| `just install` | Install full demo: validate, deploy pipeline, metric views, Genie, alerts |
 | `just health` | Run 8 health checks against live Databricks workspace |
 | `just ask "..."` | Ask the Genie agent a natural-language question |
 | `just dab` | Full cycle: validate, deploy, run pipeline |
