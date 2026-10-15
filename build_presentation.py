@@ -369,7 +369,7 @@ def genie_screenshot_html() -> str:
 <div class="genie-card" style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:22px;margin:24px 0;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
     <span style="background:#eff6ff;color:#1e40af;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid #bfdbfe;text-transform:uppercase;letter-spacing:1px;">Live Databricks Genie Verification</span>
-    <span style="color:#64748b;font-size:13px;">Space ID: <code>01f1be9d7ab0112697f6a938cb6f9315</code> · Space: <em>EDA Governed Gold Analytics</em></span>
+    <span style="color:#64748b;font-size:13px;">Space ID: <code>01f1beaa006c1e47ab3758b127b2442d</code> · Space: <em>EDA Governed Gold Analytics</em></span>
   </div>
   <h3 style="color:#1e3a5f;font-size:17px;margin:0 0 10px 0;">Conversational AI Q&amp;A: "What percentage of revenue comes from guest checkouts?"</h3>
   <p style="color:#475569;font-size:14px;margin:0 0 16px 0;">The Databricks Genie Agent automatically inspected the registered <code>retail_prod.gold.gold_daily_kpis</code> and <code>gold_customer_features</code> tables, generated trusted SQL under Unity Catalog governance, and produced the exact business breakdown without hallucination:</p>

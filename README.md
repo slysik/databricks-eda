@@ -9,6 +9,8 @@ Raw retail transactions in, trusted Gold tables out, three ways to ask questions
 
 *Solid boxes are in this repo. Dashed boxes exist only in the analysis notebook, which is not committed ([gap 1](docs/KNOWN_GAPS.md)). Diagram source: [`design/tokens.json`](design/tokens.json) and [`scripts/render_architecture.py`](scripts/render_architecture.py).*
 
+**Live Genie agent:** [EDA Governed Gold Analytics](https://dbc-61514402-8451.cloud.databricks.com/genie/rooms/01f1beaa006c1e47ab3758b127b2442d?o=7474656067656578) (workspace access required) · definition in [`genie/space_config.json`](genie/space_config.json).
+
 ## The problem
 
 The source is two annual sheets that overlap by 22,523 rows (1 to 9 Dec 2010), mixed with non-product lines (postage, bank charges) and cancellations. Stacked naively, revenue is overstated by about GBP 377k. The job: produce numbers a finance lead can trust, and let non-engineers query them without breaking governance.

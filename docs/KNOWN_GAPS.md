@@ -19,4 +19,4 @@ Found by reading the code against the docs. Each item says where, what is true t
 | 13 | CHECK constraints fail the task; they do not drop rows | `src/02_silver_clean.py:80-85`; SDP uses `expect_or_drop` instead | [OPERATIONS.md](../OPERATIONS.md) described "dropped"; true only on the SDP path | Wording fixed in OPERATIONS.md |
 | 14 | README listed files that are not committed | an `.ipynb` and `eda_online_retail_ii_sql.py` | Marked "not in this repo" | Commit them |
 
-Not verified: the figures 1.07M rows, 22,523 removed, GBP 20.3M gross and the Genie space ID (`build_presentation.py:372` differs from every other file).
+Not verified: the figures 1.07M rows, 22,523 removed and GBP 20.3M gross; and the Genie space ID `01f1beaa006c1e47ab3758b127b2442d`, which is the owner's statement of the live space (the repo previously carried two different IDs; all references now use this one). `genie/space_config.json` was exported from one of the older IDs, so its definition may differ from the live space; `just deploy-genie` would overwrite the live space with it.
