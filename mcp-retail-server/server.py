@@ -154,6 +154,7 @@ def get_executive_kpis(
         result = df.to_dict('records')[0] if len(df) > 0 else {}
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.silver.sales_cleaned"
         trace_tool("get_executive_kpis", {"period": period}, sql, len(df), latency)
         
         return json.dumps(result, indent=2, default=str)
@@ -257,6 +258,7 @@ def analyze_customer_segment(
         }
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.gold.gold_customer_features"
         trace_tool("analyze_customer_segment", {"segment": segment, "top_n": top_n}, sql, len(df), latency)
         
         return json.dumps(result, indent=2, default=str)
@@ -379,6 +381,7 @@ def compare_periods(
                     result["metrics"][m] = {"error": "Could not parse values"}
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.silver.sales_cleaned"
         trace_tool("compare_periods", {"period1": period1, "period2": period2}, sql, len(df), latency)
         
         return json.dumps(result, indent=2, default=str)
@@ -464,6 +467,7 @@ def get_revenue_breakdown(
         }
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.silver.sales_cleaned"
         trace_tool("get_revenue_breakdown", {"dimension": dimension, "period": period}, sql, len(df), latency)
         
         return json.dumps(result, indent=2, default=str)
@@ -534,6 +538,7 @@ def check_data_quality() -> str:
         }
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.silver.sales_cleaned + sales_quarantine"
         trace_tool("check_data_quality", {}, "", 3, latency)
         
         return json.dumps(result, indent=2, default=str)
@@ -646,6 +651,7 @@ def predict_return_risk(
             }
         
         latency = (time.time() - start) * 1000
+        result["source"] = "retail_prod.gold.gold_customer_features (rule-based heuristic)"
         trace_tool("predict_return_risk", {"customer_id": customer_id}, "", 1, latency)
         
         return json.dumps(result, indent=2, default=str)
