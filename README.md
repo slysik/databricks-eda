@@ -54,7 +54,7 @@ just dab              # Full cycle: validate, deploy, run
 | Layer | Notebook | What It Does |
 |:---|:---|:---|
 | **Source** | UC table | `retail_source.online_retail.transactions_raw` (1.07M rows) |
-| **Bronze** | `01_bronze_ingest.py` | Dedup on 7-column key, idempotent overwrite. Removes 22,523 overlap rows. |
+| **Bronze** | `01_bronze_ingest.py` | Ingest from UC source. Dedup on 7-column key (pragmatic deviation: source has baked-in overlap). Idempotent overwrite. |
 | **Silver** | `02_silver_clean.py` | 6-class line categorization, CHECK constraints, quarantine, guest identity stitching. |
 | **Gold** | `03_gold_aggregate.py` | Daily KPIs + customer RFM/LTV features. Pre-aggregated for sub-second queries. |
 | **Governance** | `04_governance.py` | UC column mask (customer_id), row filter (UK-only). Genie inherits automatically. |
