@@ -11,51 +11,51 @@
     "config": {
       "sample_questions": [
         {
-          "id": "01f1be9f69a919a2910b8dfb2e5b393a",
+          "id": "49d63c0155604cb3a62e07a16522d4c1",
           "question": [
-            "What were the top 5 revenue days in Q4 2010?"
+            "Guest vs identified checkout revenue share"
           ]
         },
         {
-          "id": "01f1be9f69ab1782b3343f668fe66b91",
+          "id": "4b2a905c2b2d416388ac0c44482929e1",
           "question": [
-            "Which customer segments have the highest spend?"
+            "Show monthly net revenue trend as a line chart"
           ]
         },
         {
-          "id": "01f1be9f69ad14b7901d2c2638f23c94",
+          "id": "55f84efe4dd649ca8efa8070fece0ba8",
           "question": [
-            "What are the top 10 countries by revenue?"
+            "Compare gross vs net revenue by month"
           ]
         },
         {
-          "id": "01f1be9f69af1353af0205cb4159994b",
+          "id": "87a0d2ebff7249be9ee912c31f263c1a",
           "question": [
-            "Show monthly revenue trend over time"
+            "Revenue by quarter for 2010 vs 2009"
           ]
         },
         {
-          "id": "01f1be9f69b01f368468f302c9475b95",
+          "id": "a8ddf05f0f8048aba4daba2e45f8f1a3",
           "question": [
-            "What is the cancellation rate by month?"
+            "Top 5 days with highest order volume"
           ]
         },
         {
-          "id": "01f1bea34cd4150f8db6794e224d1e91",
+          "id": "b8e3cc9073314928aeb245a048d2448e",
           "question": [
-            "How many customers are in each value segment?"
+            "Customer count by value segment as a pie chart"
           ]
         },
         {
-          "id": "01f1bea34ce611288f8c661bded6bbd2",
+          "id": "d1883e3f6ed94d1ab5d0c1f0297b831a",
           "question": [
-            "Compare Q4 2010 vs Q4 2009 revenue"
+            "Daily cancellation rate trend over time"
           ]
         },
         {
-          "id": "01f1bea34cf61615b4264b036dd4a4ba",
+          "id": "fa5f0e0bae654e37b9dce7d9148ea3d0",
           "question": [
-            "What percentage of customers are guest checkouts?"
+            "What are the top 10 countries by revenue? Show as bar chart"
           ]
         }
       ]
@@ -301,43 +301,43 @@
       ],
       "example_question_sqls": [
         {
-          "id": "95dd56f1299240dabf7a2db6e1709753",
+          "id": "08fdf640ff7443eaa4687c1b6e3e4ec8",
           "question": [
-            "What were the top 5 revenue days in Q4 2010?"
+            "Customer count by value segment"
           ],
           "sql": [
-            "SELECT daily_kpis.`Invoice Date`, MEASURE(daily_kpis.`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis AS daily_kpis WHERE daily_kpis.`Invoice Date` >= '2010-10-01' AND daily_kpis.`Invoice Date` < '2011-01-01' GROUP BY daily_kpis.`Invoice Date` ORDER BY net_revenue DESC LIMIT 5"
+            "SELECT customer_features.`Value Segment`, MEASURE(customer_features.`Customer Count`) AS customers FROM retail_prod.metrics.customer_features AS customer_features GROUP BY customer_features.`Value Segment` ORDER BY customers DESC"
           ]
         },
         {
-          "id": "9eafd0e11dfe44d9878dfd554c6f6003",
+          "id": "4e63b1e59d394fcdbec81962e5e15005",
           "question": [
-            "Show monthly revenue trend"
+            "Revenue by quarter for 2010 vs 2009"
+          ],
+          "sql": [
+            "SELECT daily_kpis.`Invoice Quarter`, MEASURE(daily_kpis.`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis AS daily_kpis WHERE daily_kpis.`Invoice Year` IN (2009, 2010) GROUP BY daily_kpis.`Invoice Quarter` ORDER BY daily_kpis.`Invoice Quarter`"
+          ]
+        },
+        {
+          "id": "909152e0b5ee4181b67ab64e92dc3994",
+          "question": [
+            "What are the top 10 countries by revenue?"
+          ],
+          "sql": [
+            "SELECT sales_by_country.`Country`, MEASURE(sales_by_country.`Revenue`) AS revenue FROM retail_prod.metrics.sales_by_country AS sales_by_country GROUP BY sales_by_country.`Country` ORDER BY revenue DESC LIMIT 10"
+          ]
+        },
+        {
+          "id": "9eda2c1e00f740548f8eefb74e4ed682",
+          "question": [
+            "Compare gross vs net revenue by month"
           ],
           "sql": [
             "SELECT daily_kpis.`Invoice Month`, MEASURE(daily_kpis.`Gross Revenue`) AS gross_revenue, MEASURE(daily_kpis.`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis AS daily_kpis GROUP BY daily_kpis.`Invoice Month` ORDER BY daily_kpis.`Invoice Month`"
           ]
         },
         {
-          "id": "20d2d64551744005b2e7e8ef0a90cef2",
-          "question": [
-            "What are the top 10 countries by revenue?"
-          ],
-          "sql": [
-            "SELECT sales_by_country.`Country`, MEASURE(sales_by_country.`Revenue`) AS revenue, MEASURE(sales_by_country.`Order Count`) AS orders FROM retail_prod.metrics.sales_by_country AS sales_by_country GROUP BY sales_by_country.`Country` ORDER BY revenue DESC LIMIT 10"
-          ]
-        },
-        {
-          "id": "d503807e8b174d5688208a33f13bcbf7",
-          "question": [
-            "Customer segmentation breakdown"
-          ],
-          "sql": [
-            "SELECT customer_features.`Value Segment`, MEASURE(customer_features.`Customer Count`) AS customers, MEASURE(customer_features.`Avg Spend`) AS avg_spend FROM retail_prod.metrics.customer_features AS customer_features GROUP BY customer_features.`Value Segment` ORDER BY customers DESC"
-          ]
-        },
-        {
-          "id": "95164c31866344ff8e88fd03fd29a2a7",
+          "id": "bb3ed46cec4a4b4ca051d599b9441ace",
           "question": [
             "What is the cancellation rate trend?"
           ],
@@ -346,21 +346,12 @@
           ]
         },
         {
-          "id": "7b3380fa41124c95b0b5737437d475ca",
+          "id": "febfc33292034b09ae40c08fc14c33e6",
           "question": [
-            "Compare Q4 2010 vs Q4 2009 revenue"
+            "Show monthly net revenue trend"
           ],
           "sql": [
-            "SELECT daily_kpis.`Invoice Year`, MEASURE(daily_kpis.`Net Revenue`) AS net_revenue, MEASURE(daily_kpis.`Total Orders`) AS total_orders FROM retail_prod.metrics.daily_kpis AS daily_kpis WHERE daily_kpis.`Invoice Quarter` IN ('Q4 2009', 'Q4 2010') GROUP BY daily_kpis.`Invoice Year` ORDER BY daily_kpis.`Invoice Year`"
-          ]
-        },
-        {
-          "id": "e9984e39031b4f2dbdbd1d72398c9d86",
-          "question": [
-            "What percentage of customers are guest checkouts?"
-          ],
-          "sql": [
-            "SELECT MEASURE(customer_features.`Guest Checkout Share`) AS guest_share_pct FROM retail_prod.metrics.customer_features AS customer_features"
+            "SELECT daily_kpis.`Invoice Month`, MEASURE(daily_kpis.`Net Revenue`) AS net_revenue FROM retail_prod.metrics.daily_kpis AS daily_kpis GROUP BY daily_kpis.`Invoice Month` ORDER BY daily_kpis.`Invoice Month`"
           ]
         }
       ]
