@@ -7,6 +7,7 @@ Colours come from the token file, so a palette change is one edit plus one run.
 Layout: source card, one Lakeflow card holding the Bronze/Silver/Gold cylinders, a Lakehouse card, three serving cards, and a governance panel across the top.
 """
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,6 +19,31 @@ W, H = 1320, 460
 MID = 300  # centre line of the main flow
 
 
+def inline_text(svg: str, theme: str) -> str:
+    """Turn class/style on <text> into presentation attributes (no <style> block: some hosts strip it)."""
+    c = lambda n: TOK[n][theme]
+    base = {"font-family": SANS}
+    cls = {"m": {"font-family": MONO},
+           "h": {"font-size": "14", "font-weight": "700", "fill": c("ink-primary")},
+           "nm": {"font-size": "13", "font-weight": "700", "fill": c("ink-primary")},
+           "sb": {"font-size": "12", "fill": c("ink-muted")},
+           "xs": {"font-size": "11", "fill": c("ink-muted")},
+           "lb": {"font-size": "11", "font-weight": "700", "letter-spacing": "1.5"}}
+
+    def fix(m):
+        attrs = dict(re.findall(r'([\w-]+)="([^"]*)"', m.group(1)))
+        out = dict(base)
+        for k in attrs.pop("class", "").split():
+            out.update(cls[k])
+        for decl in attrs.pop("style", "").split(";"):
+            if decl.strip():
+                k, v = decl.split(":")
+                out[k.strip()] = v.strip().replace("px", "")
+        out.update(attrs)
+        return "<text " + " ".join(f'{k}="{v.replace(chr(34), chr(39))}"' for k, v in out.items()) + ">"
+    return re.sub(r"<text ([^>]*)>", fix, svg)
+
+
 def render(theme: str) -> str:
     c = lambda n: TOK[n][theme]
     ink, mute, line, surf, bg = c("ink-primary"), c("ink-muted"), c("line-strong") if theme == "dark" else c("line"), c("surface"), c("bg")
@@ -25,9 +51,6 @@ def render(theme: str) -> str:
            f'<title id="t">EDA Retail Lakehouse architecture</title>'
            f'<desc id="d">A Unity Catalog source table flows into Lakeflow, where Bronze, Silver and Gold layers are built, then into governed Gold tables. '
            f'Genie, an MCP server and an MLflow model read the Gold tables. A governance panel above lists Unity Catalog access controls, Delta quality checks and dual-engine parity.</desc>',
-           f'<style>text{{font-family:{SANS}}} .m{{font-family:{MONO}}} .h{{font-size:14px;font-weight:700;fill:{ink}}} '
-           f'.nm{{font-size:13px;font-weight:700;fill:{ink}}} .sb{{font-size:12px;fill:{mute}}} .xs{{font-size:11px;fill:{mute}}} '
-           f'.lb{{font-size:11px;font-weight:700;letter-spacing:1.5px}}</style>',
            f'<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="{0.10 if theme == "light" else 0.40}"/></filter>'
            f'<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="{mute}"/></marker></defs>',
            f'<rect width="{W}" height="{H}" rx="14" fill="{bg}"/>']
@@ -97,7 +120,7 @@ def render(theme: str) -> str:
     for i in range(3):
         link(f"M920 {MID} H960 V{210+i*90} H1000" if i != 1 else f"M920 {MID} H1000", (920, MID) if i == 0 else None)
     out.append("</svg>")
-    return "\n".join(out) + "\n"
+    return inline_text("\n".join(out) + "\n", theme)
 
 
 if __name__ == "__main__":

@@ -1,55 +1,54 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 460" width="1320" height="460" role="img" aria-labelledby="t d"><title id="t">EDA Retail Lakehouse architecture</title><desc id="d">A Unity Catalog source table flows into Lakeflow, where Bronze, Silver and Gold layers are built, then into governed Gold tables. Genie, an MCP server and an MLflow model read the Gold tables. A governance panel above lists Unity Catalog access controls, Delta quality checks and dual-engine parity.</desc>
-<style>text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif} .m{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace} .h{font-size:14px;font-weight:700;fill:#f5f5f5} .nm{font-size:13px;font-weight:700;fill:#f5f5f5} .sb{font-size:12px;fill:#b0b0b8} .xs{font-size:11px;fill:#b0b0b8} .lb{font-size:11px;font-weight:700;letter-spacing:1.5px}</style>
 <defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.4"/></filter><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b0b0b8"/></marker></defs>
 <rect width="1320" height="460" rx="14" fill="#1b1b1b"/>
-<text x="40" y="52" class="h" style="font-size:16px">EDA Retail Lakehouse</text>
-<text x="40" y="72" class="sb">Online Retail II · Dec 2009 to Dec 2011</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="700" fill="#f5f5f5" x="40" y="52">EDA Retail Lakehouse</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="40" y="72">Online Retail II · Dec 2009 to Dec 2011</text>
 <rect x="640" y="20" width="640" height="104" rx="14" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="656" y="44" class="nm" style="fill:#cfe0ff">Governance and quality</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#cfe0ff" x="656" y="44">Governance and quality</text>
 <rect x="654" y="56" width="196" height="54" rx="8" fill="#2a2a32" stroke="#72727e" stroke-width="1"/>
 <circle cx="668" cy="76" r="3.5" fill="#00d4aa"/>
-<text x="680" y="80" class="nm">Unity Catalog access</text>
-<text x="666" y="98" class="xs">customer_id mask · UK row filter</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="680" y="80">Unity Catalog access</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="666" y="98">customer_id mask · UK row filter</text>
 <rect x="862" y="56" width="196" height="54" rx="8" fill="#2a2a32" stroke="#72727e" stroke-width="1"/>
 <circle cx="876" cy="76" r="3.5" fill="#00d4aa"/>
-<text x="888" y="80" class="nm">Delta quality</text>
-<text x="874" y="98" class="xs">CHECK constraints · quarantine</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="888" y="80">Delta quality</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="874" y="98">CHECK constraints · quarantine</text>
 <rect x="1070" y="56" width="196" height="54" rx="8" fill="#2a2a32" stroke="#72727e" stroke-width="1"/>
 <circle cx="1084" cy="76" r="3.5" fill="#00d4aa"/>
-<text x="1096" y="80" class="nm">Dual-engine parity</text>
-<text x="1082" y="98" class="xs">PySpark = Spark SQL, diff 0.00</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="1096" y="80">Dual-engine parity</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="1082" y="98">PySpark = Spark SQL, diff 0.00</text>
 <rect x="40" y="258" width="200" height="84" rx="12" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="56" y="282" class="lb" style="fill:#6ea0ff">UNITY CATALOG TABLE</text>
-<text x="56" y="306" class="nm m">transactions_raw</text>
-<text x="56" y="326" class="sb">retail_source · 1.07M rows</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#6ea0ff" x="56" y="282">UNITY CATALOG TABLE</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13" font-weight="700" fill="#f5f5f5" x="56" y="306">transactions_raw</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="56" y="326">retail_source · 1.07M rows</text>
 <rect x="300" y="185" width="340" height="230" rx="16" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="320" y="214" class="h">Lakeflow</text><text x="388" y="214" class="sb">ingest, clean, aggregate</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#f5f5f5" x="320" y="214">Lakeflow</text><text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="388" y="214">ingest, clean, aggregate</text>
 <rect x="316" y="228" width="308" height="124" rx="10" fill="#2a2a32"/>
 <path d="M342 252v38a28 8 0 0 0 56 0v-38" fill="#3a2718" stroke="#d08a52" stroke-width="1.5"/>
 <ellipse cx="370" cy="252" rx="28" ry="8" fill="#3a2718" stroke="#d08a52" stroke-width="1.5"/>
-<text x="370" y="320" class="lb" text-anchor="middle" style="fill:#f0cdb0">BRONZE</text>
-<text x="370" y="338" class="xs" text-anchor="middle">dedup</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#f0cdb0" x="370" y="320" text-anchor="middle">BRONZE</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="370" y="338" text-anchor="middle">dedup</text>
 <path d="M442 252v38a28 8 0 0 0 56 0v-38" fill="#2a2f38" stroke="#9aa6b6" stroke-width="1.5"/>
 <ellipse cx="470" cy="252" rx="28" ry="8" fill="#2a2f38" stroke="#9aa6b6" stroke-width="1.5"/>
-<text x="470" y="320" class="lb" text-anchor="middle" style="fill:#dde3ea">SILVER</text>
-<text x="470" y="338" class="xs" text-anchor="middle">clean · stitch</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#dde3ea" x="470" y="320" text-anchor="middle">SILVER</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="470" y="338" text-anchor="middle">clean · stitch</text>
 <path d="M542 252v38a28 8 0 0 0 56 0v-38" fill="#3b2f0a" stroke="#e0b030" stroke-width="1.5"/>
 <ellipse cx="570" cy="252" rx="28" ry="8" fill="#3b2f0a" stroke="#e0b030" stroke-width="1.5"/>
-<text x="570" y="320" class="lb" text-anchor="middle" style="fill:#f6e2a0">GOLD</text>
-<text x="570" y="338" class="xs" text-anchor="middle">KPIs · RFM</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#f6e2a0" x="570" y="320" text-anchor="middle">GOLD</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="570" y="338" text-anchor="middle">KPIs · RFM</text>
 <line x1="402" y1="274" x2="438" y2="274" stroke="#b0b0b8" stroke-width="1.25" stroke-dasharray="3 3"/>
 <line x1="502" y1="274" x2="538" y2="274" stroke="#b0b0b8" stroke-width="1.25" stroke-dasharray="3 3"/>
-<text x="320" y="384" class="xs">Notebooks or declarative pipelines (ADR-005)</text>
-<text x="320" y="402" class="xs">CHECK constraints and quarantine run in Silver</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="320" y="384">Notebooks or declarative pipelines (ADR-005)</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#b0b0b8" x="320" y="402">CHECK constraints and quarantine run in Silver</text>
 <rect x="700" y="264" width="220" height="72" rx="12" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="716" y="292" class="nm">Gold tables</text>
-<text x="716" y="314" class="sb">daily KPIs · customer features</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="716" y="292">Gold tables</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="716" y="314">daily KPIs · customer features</text>
 <rect x="1000" y="178" width="280" height="64" rx="12" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="1018" y="205" class="nm">Genie agent</text><text x="1018" y="225" class="sb">plain English → SQL → charts</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="1018" y="205">Genie agent</text><text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="1018" y="225">plain English → SQL → charts</text>
 <rect x="1000" y="268" width="280" height="64" rx="12" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="1018" y="295" class="nm">MCP server</text><text x="1018" y="315" class="sb">6 business-shaped tools</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="1018" y="295">MCP server</text><text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="1018" y="315">6 business-shaped tools</text>
 <rect x="1000" y="358" width="280" height="64" rx="12" fill="#1e1e24" stroke="#72727e" stroke-width="1" filter="url(#sh)"/>
-<text x="1018" y="385" class="nm">MLflow model</text><text x="1018" y="405" class="sb">return risk · ROC-AUC 0.89</text>
+<text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#f5f5f5" x="1018" y="385">MLflow model</text><text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#b0b0b8" x="1018" y="405">return risk · ROC-AUC 0.89</text>
 <path d="M240 300 H300" fill="none" stroke="#b0b0b8" stroke-width="1.25" marker-end="url(#a)"/>
 <circle cx="240" cy="300" r="3.5" fill="#ff3621"/>
 <path d="M640 300 H700" fill="none" stroke="#b0b0b8" stroke-width="1.25" marker-end="url(#a)"/>
