@@ -1,7 +1,7 @@
 # Databricks Lakehouse Production Blueprint
-### Online Retail Transaction Analysis & Architecture
+## Governed self-service analytics, demonstrated on retail transactions
 
-A dual-engine (**PySpark + Spark SQL**) exploratory data analysis with programmatic parity verification, extending to an enterprise Lakehouse blueprint featuring Gold medallion aggregates, MLflow predictive modeling, Unity Catalog governance, and Genie AI/BI self-service analytics.
+Executives ask questions in plain English and get answers from governed data: no SQL, no report queue, no loosened guardrails. Deterministic medallion pipelines and Unity Catalog enforcement keep every number trustworthy; Genie AI/BI makes them conversational.
 
 ---
 
