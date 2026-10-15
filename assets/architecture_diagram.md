@@ -26,10 +26,10 @@ flowchart TB
     subgraph L2["Silver Layer — Cleaning & Classification"]
         direction TB
         S1["Type Casting<br/>(int, decimal(12,3),<br/>timestamp)"]
-        S2["6-Class Categorization"]
+        S2["5-Class Categorization"]
         S3A[("sales_cleaned<br/>sale + cancellation")]
         S3B[("sales_quarantine<br/>non_product, bad_debt,<br/>stock_adjustment")]
-        S4["Identity Stitching<br/>(SHA-256 guest resolution)"]
+        S4["Guest Surrogate ID<br/>(SHA-256 per guest invoice)"]
         S5[("sales_stitched<br/>+ resolved_customer_id")]
         B2 --> S1 --> S2
         S2 -->|"sale / cancellation"| S3A
@@ -47,7 +47,7 @@ flowchart TB
 
     subgraph L4["Governance — Unity Catalog"]
         direction TB
-        UC1["Column Mask<br/>customer_id → ***MASKED***<br/>(non-admin roles)"]
+        UC1["Column Mask<br/>customer_id → NULL<br/>(non-admin roles)"]
         UC2["Row Filter<br/>country = 'United Kingdom'<br/>(non-admin roles)"]
     end
 
@@ -140,7 +140,7 @@ flowchart TB
     subgraph Pipeline["Spark Declarative Pipeline"]
         direction TB
         P1["01_bronze_transactions_raw<br/>@dp.materialized_view<br/>Dedup + write"]
-        P2["02_silver_classified<br/>@dp.temporary_view<br/>6-class categorization"]
+        P2["02_silver_classified<br/>@dp.temporary_view<br/>5-class categorization"]
         P3["03_silver_sales_cleaned<br/>@dp.materialized_view<br/>@dp.expect_or_drop (x2)"]
         P4["04_silver_sales_quarantine<br/>@dp.materialized_view"]
         P5["05_silver_sales_stitched<br/>@dp.materialized_view<br/>row_filter applied"]

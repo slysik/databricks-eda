@@ -1,6 +1,6 @@
 # ADR-004: MLflow Model Training & Unity Catalog Registration
 
-**Status:** Accepted  
+**Status:** Accepted. **Implementation:** trained in the analysis notebook (not committed). The MCP `predict_return_risk` tool uses fixed rules, not this model ([KNOWN_GAPS](../KNOWN_GAPS.md) 1 and 2)  
 **Date:** 2025-07-11  
 **Decision Makers:** ML Engineering, Tech Lead  
 **Consulted:** Analytics Engineering, Business Stakeholders

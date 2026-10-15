@@ -1,6 +1,6 @@
 # ADR-002: Dual-Engine Parity Validation (PySpark + Spark SQL)
 
-**Status:** Accepted  
+**Status:** Accepted. **Implementation:** in the analysis notebook, which is not committed to this repo ([KNOWN_GAPS](../KNOWN_GAPS.md) 1)  
 **Date:** 2025-07-11  
 **Decision Makers:** Data Engineering, Analytics Engineering  
 **Consulted:** Tech Lead

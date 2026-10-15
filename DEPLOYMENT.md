@@ -139,7 +139,7 @@ databricks sql query --warehouse-id 4bbaafe9538467a0 \
 # Verify governance
 databricks sql query --warehouse-id 4bbaafe9538467a0 \
   "SELECT customer_id FROM retail_prod.gold.gold_customer_features LIMIT 5"
-# Expected: ***MASKED*** for non-admin users
+# Expected: NULL for non-admin users
 ```
 
 ### Step 5: Deploy Genie Agent

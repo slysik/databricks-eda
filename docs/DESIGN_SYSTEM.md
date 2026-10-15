@@ -8,6 +8,7 @@ Single source: [`design/tokens.json`](../design/tokens.json) (light and dark the
 - Medallion layers use the `medallion-*` tokens: Bronze copper, Silver slate, Gold yellow. The older `tier-bronze-*` and `tier-gold-*` pill colours (`#fef3c7`, `#fef9c3`) are almost the same yellow; do not use them to tell the layers apart.
 - Diagram style: white `surface` cards with a soft shadow on `bg`, thin `ink-muted` connectors with a small `brand-orange` dot at each start, and one large pipeline card holding the Bronze, Silver and Gold cylinders (`medallion-*`). Governance and quality sit in one panel above the flow, never as a fifth layer colour.
 - Each card carries a name (`node-name`, mono for tables) and one line (`node-sub`). Arrows run between stages, not between every table; per-table lineage lives in `assets/architecture_diagram.md`.
+- A dashed outline means "exists, but not built into this repo" (for example a notebook-only model). Solid means it is in the code. Never draw an unbuilt part solid.
 - Show a status or layer by colour **and** a word. Cylinders carry their layer label.
 
 ## Regenerate the architecture diagram

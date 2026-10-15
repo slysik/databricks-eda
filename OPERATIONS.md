@@ -10,6 +10,8 @@
 
 This runbook defines how a delivery team would monitor, operate, and respond to issues in the Databricks EDA lakehouse. It lists actionable health signals, their owners, escalation paths, and remediation steps.
 
+> **Status:** Only a few signals run today: the job's fail-fast task chain and 1800 s timeout, CHECK constraints, the quarantine table, the MCP `check_data_quality` tool, and MLflow logging of every MCP call. Everything else below is design, not built. See the README section "How I'd know it is healthy".
+
 > **Note:** This is a production-oriented reference implementation. The signals and procedures below define what would be monitored and how incidents would be handled in a real production deployment.
 
 ---
@@ -46,7 +48,7 @@ This runbook defines how a delivery team would monitor, operate, and respond to 
 
 | Signal | What It Measures | Healthy Range | Alert Threshold | Owner |
 |:---|:---|:---|:---|:---|
-| **CHECK Constraint Violations** | Rows failing `price >= 0` or `invoice_date IS NOT NULL` | 0 (all dropped) | > 100 rows dropped per run | Data Eng |
+| **CHECK Constraint Violations** | Rows failing `price >= 0` or `invoice_date IS NOT NULL` | 0 | Notebook path: any violation fails the Silver task. Declarative pipeline: > 100 rows dropped per run (`expect_or_drop`) | Data Eng |
 | **Null Rate (customer_id)** | % of `sales_cleaned` rows with null `customer_id` | 16-18% (guest checkout rate) | > 25% or < 5% | Analytics Eng |
 | **Schema Drift** | Unexpected column additions/removals/changes | None | Any unapproved schema change | Data Eng |
 | **Duplicate Detection** | Post-dedup duplicates on composite key | 0 | > 0 | Data Eng |

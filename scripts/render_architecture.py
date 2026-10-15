@@ -50,17 +50,20 @@ def render(theme: str) -> str:
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-labelledby="t d">'
            f'<title id="t">EDA Retail Lakehouse architecture</title>'
            f'<desc id="d">A Unity Catalog source table flows into Lakeflow, where Bronze, Silver and Gold layers are built, then into governed Gold tables. '
-           f'Genie, an MCP server and an MLflow model read the Gold tables. A governance panel above lists Unity Catalog access controls, Delta quality checks and dual-engine parity.</desc>',
+           f'Genie and an MCP server read the Gold tables; a dashed MLflow model card is trained in a notebook and not served. A governance panel above lists Unity Catalog access controls, Delta quality checks and, dashed, dual-engine parity that lives in a notebook.</desc>',
            f'<defs><filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="{0.10 if theme == "light" else 0.40}"/></filter>'
            f'<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="{mute}"/></marker></defs>',
            f'<rect width="{W}" height="{H}" rx="14" fill="{bg}"/>']
 
-    def card(x, y, w, h, rx=12, fill=None, shadow=True):
+    def card(x, y, w, h, rx=12, fill=None, shadow=True, dashed=False):
         f = ' filter="url(#sh)"' if shadow else ""
-        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill or surf}" stroke="{line}" stroke-width="1"{f}/>')
+        d = f' stroke-dasharray="5 4"' if dashed else ""
+        st = mute if dashed else line
+        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill or surf}" stroke="{st}" stroke-width="1"{d}{f}/>')
 
-    def link(d, dot=None):
-        out.append(f'<path d="{d}" fill="none" stroke="{mute}" stroke-width="1.25" marker-end="url(#a)"/>')
+    def link(d, dot=None, dashed=False):
+        da = ' stroke-dasharray="4 3"' if dashed else ""
+        out.append(f'<path d="{d}" fill="none" stroke="{mute}" stroke-width="1.25"{da} marker-end="url(#a)"/>')
         if dot:
             out.append(f'<circle cx="{dot[0]}" cy="{dot[1]}" r="3.5" fill="{c("brand-orange")}"/>')
 
@@ -73,10 +76,10 @@ def render(theme: str) -> str:
     out.append(f'<text x="656" y="44" class="nm" style="fill:{c("accent-navy")}">Governance and quality</text>')
     for i, (t, sub) in enumerate((("Unity Catalog access", "customer_id mask · UK row filter"),
                                   ("Delta quality", "CHECK constraints · quarantine"),
-                                  ("Dual-engine parity", "PySpark = Spark SQL, diff 0.00"))):
+                                  ("Dual-engine parity", "PySpark = SQL, notebook only"))):
         x = 654 + i * 208
-        card(x, 56, 196, 54, rx=8, fill=c("surface-alt"), shadow=False)
-        out.append(f'<circle cx="{x+14}" cy="76" r="3.5" fill="{c("accent-green")}"/>')
+        card(x, 56, 196, 54, rx=8, fill=c("surface-alt"), shadow=False, dashed=(i == 2))
+        out.append(f'<circle cx="{x+14}" cy="76" r="3.5" fill="{c("accent-green") if i < 2 else c("ink-faint")}"/>')
         out.append(f'<text x="{x+26}" y="80" class="nm">{t}</text>')
         out.append(f'<text x="{x+12}" y="98" class="xs">{sub}</text>')
 
@@ -90,7 +93,7 @@ def render(theme: str) -> str:
     card(300, 185, 340, 230, rx=16)
     out.append(f'<text x="320" y="214" class="h">Lakeflow</text><text x="388" y="214" class="sb">ingest, clean, aggregate</text>')
     out.append(f'<rect x="316" y="228" width="308" height="124" rx="10" fill="{c("surface-alt")}"/>')
-    for cx, k, label, sub in ((370, "bronze", "BRONZE", "dedup"), (470, "silver", "SILVER", "clean · stitch"), (570, "gold", "GOLD", "KPIs · RFM")):
+    for cx, k, label, sub in ((370, "bronze", "BRONZE", "dedup"), (470, "silver", "SILVER", "clean · quarantine"), (570, "gold", "GOLD", "KPIs · RFM")):
         f, st, ik = c(f"medallion-{k}-fill"), c(f"medallion-{k}-stroke"), c(f"medallion-{k}-ink")
         out.append(f'<path d="M{cx-28} 252v38a28 8 0 0 0 56 0v-38" fill="{f}" stroke="{st}" stroke-width="1.5"/>')
         out.append(f'<ellipse cx="{cx}" cy="252" rx="28" ry="8" fill="{f}" stroke="{st}" stroke-width="1.5"/>')
@@ -107,18 +110,18 @@ def render(theme: str) -> str:
     out.append(f'<text x="716" y="{MID+14}" class="sb">daily KPIs · customer features</text>')
 
     # serving cards
-    for i, (n, sub) in enumerate((("Genie agent", "plain English → SQL → charts"),
-                                  ("MCP server", "6 business-shaped tools"),
-                                  ("MLflow model", "return risk · ROC-AUC 0.89"))):
+    for i, (n, sub) in enumerate((("Genie agent", "LLM writes SQL over Gold tables"),
+                                  ("MCP server", "6 tools · rule-based risk score"),
+                                  ("MLflow model", "notebook only · not served"))):
         y = 178 + i * 90
-        card(1000, y, 280, 64)
+        card(1000, y, 280, 64, dashed=(i == 2))
         out.append(f'<text x="1018" y="{y+27}" class="nm">{n}</text><text x="1018" y="{y+47}" class="sb">{sub}</text>')
 
     # connectors, each starting with a brand-orange dot
     link(f"M240 {MID} H300", (240, MID))
     link(f"M640 {MID} H700", (640, MID))
     for i in range(3):
-        link(f"M920 {MID} H960 V{210+i*90} H1000" if i != 1 else f"M920 {MID} H1000", (920, MID) if i == 0 else None)
+        link(f"M920 {MID} H960 V{210+i*90} H1000" if i != 1 else f"M920 {MID} H1000", (920, MID) if i == 0 else None, dashed=(i == 2))
     out.append("</svg>")
     return inline_text("\n".join(out) + "\n", theme)
 

@@ -5,7 +5,7 @@
 # MAGIC
 # MAGIC **Applies:** Column masking (PII) + Row-level security (regional access)
 # MAGIC
-# MAGIC - `customer_id` masked as `***MASKED***` for non-admin roles
+# MAGIC - `customer_id` returns NULL for non-admin roles
 # MAGIC - UK managers see only UK rows; global leadership sees all 43 countries
 # MAGIC - Genie inherits both automatically
 
