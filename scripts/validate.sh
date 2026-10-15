@@ -142,6 +142,7 @@ DOC_FILES=(
     "docs/adr/ADR-004-mlflow-model-training.md"
     "docs/adr/ADR-005-spark-declarative-pipelines.md"
     "docs/adr/ADR-006-purpose-built-mcp-server.md"
+    "docs/adr/ADR-007-metric-views.md"
     "assets/architecture_diagram.md"
     "mcp-retail-server/README.md"
 )

@@ -144,6 +144,8 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
    A Random Forest Return Propensity classifier trained on RFM features achieves **0.8899 ROC-AUC**, fully logged with parameters and artifacts, and registered to Unity Catalog as `retail_prod.gold.return_propensity_model`.
 6. **Unity Catalog Dynamic Governance:**
    Dynamic column masks (`MASK()` user-defined function) mask `customer_id` into `***MASKED***` for non-administrative roles while preserving complete operational utility.
+7. **Unity Catalog Metric Views:**
+   Three governed metric views (`daily_kpis`, `customer_features`, `sales_by_country`) define business metrics declaratively in YAML. Genie, dashboards, and SQL consumers share the same metric definitions via `MEASURE()` syntax. Benchmarked with ~13% overhead vs direct queries (negligible at this scale).
 
 ---
 
@@ -161,6 +163,7 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 | **`src/03_gold_aggregate.py`** | **Gold Aggregation:** Daily KPIs + Customer RFM/LTV features (pre-aggregated for sub-second BI). |
 | **`src/04_governance.py`** | **Unity Catalog Governance:** Dynamic column masking + row-level security. |
 | **`src/05_genie_agent.py`** | **Genie Agent Config:** Space definition with governed tables, instructions, sample questions. |
+| **`src/metrics/`** | **Unity Catalog Metric Views:** Declarative YAML metric definitions (daily_kpis, customer_features, sales_by_country) for governed Genie + BI consumption. |
 | **`src/pipelines/retail_sdp/`** | **Spark Declarative Pipeline:** Declarative implementation of the same medallion flow. |
 | **`mcp-retail-server/`** | **Purpose-built MCP server:** 6 tools shaped to executive questions (KPIs, segments, period compares, revenue breakdown, DQ check, return-risk prediction) — not a raw SQL passthrough. FastMCP pure functions, UC-secured service principal, MLflow traces on every call. |
 | **`genie/space_config.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (used by `deploy_genie.py`). |

@@ -16,6 +16,7 @@ ADRs follow the standard format: **Context → Decision → Alternatives → Con
 | [ADR-004](ADR-004-mlflow-model-training.md) | MLflow Model Training & UC Registration | Accepted | Random Forest + MLflow + UC registry |
 | [ADR-005](ADR-005-spark-declarative-pipelines.md) | Spark Declarative Pipelines (SDP) | Accepted | Parallel SDP implementation alongside notebook scripts |
 | [ADR-006](ADR-006-purpose-built-mcp-server.md) | Purpose-Built MCP Server | Accepted | Business-shaped tools instead of raw SQL passthrough |
+| [ADR-007](ADR-007-metric-views.md) | Unity Catalog Metric Views | Accepted | Declarative YAML metrics for Genie governance |
 
 ---
 

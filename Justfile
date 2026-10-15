@@ -78,6 +78,12 @@ dab-open target="dev":
 dab-destroy target="dev":
     @databricks bundle destroy --target {{target}}
 
+# Deploy metric views to Unity Catalog
+metric-views profile="primary-aws-user":
+    @echo "Deploying metric views to retail_prod.metrics..."
+    @for f in src/metrics/*.sql; do echo "  $$f"; databricks -p {{profile}} sql -f $$f; done
+    @echo "✅ Metric views deployed"
+
 # Full cycle: validate → deploy → run
 dab target="dev":
     @just dab-validate {{target}}
