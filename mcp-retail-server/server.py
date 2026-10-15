@@ -279,7 +279,7 @@ def compare_periods(
             parts = p.split("_")
             if len(parts) == 2:
                 return f"QUARTER(invoice_date) = {int(parts[0][1])} AND YEAR(invoice_date) = {int(parts[1])}"
-        elif p.startswith("dec_") or p.startswith("nov_") etc:
+        elif any(p.startswith(m + "_") for m in ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]):
             # Month abbreviations
             months = {"jan":1,"feb":2,"mar":3,"apr":4,"may":5,"jun":6,
                      "jul":7,"aug":8,"sep":9,"oct":10,"nov":11,"dec":12}

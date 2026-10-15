@@ -5,6 +5,99 @@ A dual-engine (**PySpark + Spark SQL**) exploratory data analysis with programma
 
 ---
 
+## What This Demonstrates
+
+This is a production-oriented Databricks lakehouse reference implementation for governed retail analytics and AI-assisted self-service.
+
+It transforms raw retail transactions into trusted Bronze, Silver, and Gold data products, validates core metrics through independent PySpark and Spark SQL implementations, applies Unity Catalog governance, trains and registers a return-propensity model with MLflow, and enables natural-language analytics through Databricks Genie.
+
+The design deliberately separates deterministic controls—ingestion, deduplication, data quality, metric calculation, access enforcement, and auditability—from probabilistic capabilities such as predictive modeling and natural-language question interpretation.
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart LR
+    subgraph Source["Data Source"]
+        SRC["retail_source.online_retail<br/>transactions_raw"]
+    end
+
+    subgraph Bronze["Bronze Layer"]
+        B_ING["Deduplication<br/>(Window Function)"]
+        B_TBL["bronze.transactions_raw<br/>(idempotent overwrite)"]
+    end
+
+    subgraph Silver["Silver Layer"]
+        S_CLS["6-Class Line<br/>Categorization"]
+        S_Q["Quarantine<br/>sales_quarantine"]
+        S_CLN["Clean Sales<br/>sales_cleaned"]
+        S_STC["Identity Stitching<br/>sales_stitched"]
+    end
+
+    subgraph Gold["Gold Layer"]
+        G_KPI["gold_daily_kpis<br/>(Revenue, Orders, AOV)"]
+        G_RFM["gold_customer_features<br/>(RFM + LTV)"]
+    end
+
+    subgraph Governance["Unity Catalog Governance"]
+        UC_MASK["Column Mask<br/>(customer_id)"]
+        UC_RLS["Row Filter<br/>(UK-only)"]
+    end
+
+    subgraph Serving["Serving & AI"]
+        GENIE["Genie Agent<br/>(NL Analytics)"]
+        MCP_S["MCP Server<br/>(Purpose-built Tools)"]
+        ML_M["MLflow Model<br/>(Return Propensity)"]
+    end
+
+    subgraph XCut["Cross-Cutting Controls"]
+        QC["Quality Constraints<br/>(Delta CHECK)"]
+        PAR["Dual-Engine Parity<br/>(PySpark = SQL)"]
+        AUD["Audit Quarantine<br/>(Non-product lines)"]
+    end
+
+    SRC --> B_ING --> B_TBL
+    B_TBL --> S_CLS
+    S_CLS -->|sale/cancellation| S_CLN
+    S_CLS -->|non-product| S_Q
+    S_CLN --> S_STC
+    S_STC --> G_KPI
+    S_STC --> G_RFM
+    G_KPI --> GENIE
+    G_RFM --> GENIE
+    G_KPI --> MCP_S
+    G_RFM --> MCP_S
+    G_RFM --> ML_M
+    UC_MASK -.->|applied to| G_RFM
+    UC_RLS -.->|applied to| S_STC
+    QC -.->|enforces| S_CLN
+    PAR -.->|validates| G_KPI
+    AUD -.->|isolates| S_Q
+```
+
+For a detailed view of the existing architecture visual, see:
+
+![Excel to Genie flow: landing zone through bronze, silver, gold, serving, governance, and the EDA Genie agent](assets/excel_to_genie_flow_v2.png)
+
+---
+
+## Deterministic vs. Probabilistic
+
+| Capability | Type | Mechanism | Confidence |
+|:---|:---:|:---|:---:|
+| Bronze ingestion & deduplication | **Deterministic** | Window function + idempotent overwrite | Exact |
+| Line categorization (6 classes) | **Deterministic** | Rule-based classification (prefixes, stock codes, quantity sign) | Exact |
+| Data quality constraints | **Deterministic** | Delta `CHECK` constraints (`price >= 0`, `invoice_date IS NOT NULL`) | Exact |
+| Metric calculation (KPIs, RFM) | **Deterministic** | SQL / DataFrame aggregation with dual-engine parity validation | Exact (0.00 diff) |
+| Customer identity stitching | **Deterministic** | SHA-256 hash of invoice + country + date for guest resolution | Exact per rule |
+| Column masking & row filtering | **Deterministic** | UC dynamic masking + row filters via `IS_ACCOUNT_GROUP_MEMBER()` | Exact |
+| Return propensity model (RF) | **Probabilistic** | MLflow Random Forest classifier, 0.8899 ROC-AUC | 89% AUC |
+| Genie NL interpretation | **Probabilistic** | Databricks Genie (LLM + governed SQL) | Model-dependent |
+| MCP `predict_return_risk` | **Probabilistic** | Serves registered MLflow model | Model-dependent |
+
+---
+
 ## 🎬 Demo: EDA Genie Agent (36 s)
 
 [![EDA Genie Agent demo: plain-English questions answered with charts and SQL](demo/genie_agent_demo.gif)](https://github.com/slysik/databricks-eda/raw/main/demo/genie_agent_demo.mp4)
@@ -67,14 +160,29 @@ Analyzing 1.07M raw transaction line items from a UK-based online gift retailer 
 
 | File | Description |
 | :--- | :--- |
+| **`README.md`** | **This file:** Architecture narrative, executive summary, quickstart, and interviewer guide. |
+| **`PRODUCTION_READINESS.md`** | **Production Readiness Assessment:** Gap analysis of implemented vs. required capabilities for real production launch. |
+| **`OPERATIONS.md`** | **Operations Runbook:** Health signals, monitoring, alerting, incident response, and ownership. |
+| **`DEPLOYMENT.md`** | **Deployment Guide:** Tested commands for DAB deployment, validation, and rollback. |
+| **`docs/adr/`** | **Architecture Decision Records:** Rationale for major technical choices (Medallion, dual-engine, UC governance, etc.). |
+| **`src/01_bronze_ingest.py`** | **Bronze Ingestion:** Window-based dedup from UC source table, idempotent overwrite. |
+| **`src/02_silver_clean.py`** | **Silver Cleaning:** 6-class line categorization, Delta CHECK constraints, quarantine, identity stitching. |
+| **`src/03_gold_aggregate.py`** | **Gold Aggregation:** Daily KPIs + Customer RFM/LTV features (pre-aggregated for sub-second BI). |
+| **`src/04_governance.py`** | **Unity Catalog Governance:** Dynamic column masking + row-level security. |
+| **`src/05_genie_agent.py`** | **Genie Agent Config:** Space definition with governed tables, instructions, sample questions. |
+| **`src/pipelines/retail_sdp/`** | **Spark Declarative Pipeline:** Declarative implementation of the same medallion flow. |
+| **`mcp-retail-server/`** | **Purpose-built MCP server:** 6 tools shaped to executive questions (KPIs, segments, period compares, revenue breakdown, DQ check, return-risk prediction) — not a raw SQL passthrough. FastMCP pure functions, UC-secured service principal, MLflow traces on every call. |
+| **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space. |
+| **`genie/ask_genie.py`** | **Genie CLI:** Ask the live Genie One Agent a plain-English question from the terminal. |
+| **`genie/deploy_genie.py`** | **Genie Deploy:** Create or update the Genie Space definition via the Databricks SDK. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.ipynb`** | **Interactive Jupyter Notebook:** 28 cells with gradient cards, pre-rendered outputs, and Genie Agent creation (§14). |
 | **`eda_online_retail_ii_presentation.html`** | **Executive Presentation:** Standalone single-file HTML presentation in light tonal colors featuring the top-down Lakehouse architecture visual and live Genie verification. |
-| **`genie/eda_governed_gold_space.json`** | **Genie Agent as Code:** Exported definition of the *EDA Governed Gold Analytics* space (tables, instructions, sample questions, example SQL). Recreate it with the Genie API or notebook §14. |
 | **`eda-online-retail-gold-V1-2026-10-02 17_48_41.html`** | **Notebook Run Export:** Executed Databricks run; input to `build_presentation.py`. |
 | **`eda_online_retail_ii_sql.py`** | **SQL EDA Notebook (Databricks source):** The SQL-first analysis behind the headline growth, concentration and retention figures. |
 | **`demo/genie_agent_demo.mp4`** | **Genie Agent Demo Video:** 36-second captioned walkthrough of the agent answering questions with charts and SQL (GIF preview at the top of this README). |
 | **`genie_one_eda.png`** | **Genie AI/BI Live Verification:** Screenshot of Databricks Genie Agent answering guest checkout revenue distribution over Gold tables. |
 | **`build_presentation.py`** | **Report Compiler:** Builds the presentation directly from notebook execution models, ensuring report-to-code alignment. |
+| **`databricks.yml`** | **Databricks Asset Bundle:** Declarative deployment of notebooks, SDP pipeline, and scheduled job. |
 | **`Justfile`** | **Command Runner:** One-command developer & review workflows (`just preview`, `just demo`, `just build`, `just ask`). |
 
 ---
@@ -113,3 +221,27 @@ uv run --with markdown python build_presentation.py "eda-online-retail-gold-V1-2
 1. **Formalize the Dotcom Channel:** Transition unauthenticated web orders to a dedicated digital brand journey with persistent guest sessions and targeted email recapture.
 2. **Mitigate Account Concentration Risk:** Implement proactive account retention monitoring for top wholesale accounts (top 1% drive 34% of volume).
 3. **Automate High-Risk Return Intervention:** Deploy the registered `return_propensity_model` to flag high-probability returns (>15% risk) in real time during checkout.
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|:---|:---|
+| [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | What is implemented, demonstrated, and needed before a real production launch |
+| [`OPERATIONS.md`](OPERATIONS.md) | Service health signals, monitoring, alerting, and operational ownership |
+| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Step-by-step deployment commands, validation, and rollback procedures |
+| [`docs/adr/`](docs/adr/) | Architecture Decision Records for key technical choices |
+| [`assets/architecture_diagram.md`](assets/architecture_diagram.md) | Full annotated Mermaid architecture diagram |
+
+---
+
+## Interviewer's Quick Start
+
+New here? This is a 5-minute orientation:
+
+1. **Business context:** A UK online gift retailer with 1.07M transactions (Dec 2009–Dec 2011). The challenge: separate real growth signals from data traps, build trusted metrics, and enable self-service analytics with governance.
+2. **Architecture:** Medallion (Bronze → Silver → Gold) with Unity Catalog governance, MLflow model serving, and Genie NL analytics. See the diagram above.
+3. **Key insight:** Dual-engine parity (PySpark + Spark SQL) with zero-tolerance assertions ensures every headline metric is independently verified. See the parity table in the Executive Summary.
+4. **What's deterministic vs. probabilistic:** Deterministic controls handle ingestion, quality, metrics, and governance. Probabilistic capabilities (ML model, Genie) handle prediction and natural-language interpretation. See the table above.
+5. **Production readiness:** See [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) for a gap analysis of what is implemented versus what a real production launch would require.
